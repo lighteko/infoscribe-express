@@ -16,16 +16,11 @@
     "noEmit": false,
     "baseUrl": "./src",
     "paths": {
-      "@controllers/*": ["src/controllers/*"],
-      "@models/*": ["src/models/*"],
-      "@routes/*": ["src/routes/*"],
-      "@services/*": ["src/services/*"],
-      "@daos/*": ["src/daos/*"],
       "@middlewares/*": ["src/middlewares/*"],
-      "@lib/*": ["src/lib/*"]
+      "@lib/*": ["lib/*"]
     },
     "outDir": "./dist"
   },
-  "include": ["src"],
+  "include": ["src", "app.ts", "config.ts"],
   "exclude": ["node_modules"]
 }
