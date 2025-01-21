@@ -1,8 +1,7 @@
-import { Application } from "express";
+import { Express } from "express";
 import { createPool, Pool, PoolConnection } from "mysql2/promise";
 import * as sqlFormatter from "sql-formatter";
 
-// Logger setup
 import * as winston from "winston";
 
 const logger = winston.createLogger({
@@ -34,7 +33,7 @@ class DB {
 
   private constructor() {}
 
-  public static initApp(app: Application): void {
+  public static initApp(app: Express): void {
     DB.config.MYSQL_HOST = app.get("MYSQL_HOST");
     DB.config.MYSQL_USER = app.get("MYSQL_USER");
     DB.config.MYSQL_PASSWORD = app.get("MYSQL_PASSWORD");
@@ -69,7 +68,7 @@ class DB {
       return result;
     } catch (error) {
       await connection.rollback();
-      logger.error(sqlFormatter.format(connection.format(error.sql ?? "")));
+      logger.error(sqlFormatter.format(connection.format((error as any).sql ?? "")));
       logger.error(error);
       throw error;
     } finally {

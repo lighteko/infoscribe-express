@@ -1,8 +1,7 @@
 import dotenv from "dotenv";
 import { Express } from "express";
-import path from "path";
 
-dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config();
 
 export class BaseConfig {
   static LOGGING_PATH = "../logs";

@@ -14,13 +14,14 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "paths": {
-      "@middlewares/*": ["src/middlewares/*"],
-      "@lib/*": ["lib/*"]
+      "@middlewares/*": ["./src/middlewares/*"],
+      "@lib/*": ["./lib/*"],
+      "@src/*": ["./src/*"]
     },
     "outDir": "./dist"
   },
-  "include": ["src", "app.ts", "config.ts"],
+  "include": ["src", "main.ts", "config.ts"],
   "exclude": ["node_modules"]
 }

@@ -23,8 +23,8 @@
     "typescript": "^5.7.2"
   },
   "scripts": {
-    "start": "node dist/app.js",
+    "start": "node dist/main.js",
     "build": "tsc -p .",
-    "dev": "nodemon --watch \"src/**/*.ts\" --exec \"tsx\" ./app.ts"
+    "dev": "nodemon --watch \"src/**/*.ts\" --exec \"tsx\" ./main.ts"
   }
 }
