@@ -5,10 +5,13 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@langchain/community": "^0.3.26",
+    "@langchain/core": "^0.3.32",
     "@types/cors": "^2.8.17",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "langchain": "^0.3.12",
     "mysql2": "^3.12.0",
     "sql-formatter": "^15.4.9",
     "sqlstring": "^2.3.3",

@@ -14,6 +14,7 @@ interface DBConfig {
 }
 
 class DB {
+  private constructor() {}
   private static config: DBConfig = {
     MYSQL_HOST: "127.0.0.1",
     MYSQL_USER: "root",
@@ -23,8 +24,6 @@ class DB {
   };
 
   private static connectionPool: Pool | null = null;
-
-  private constructor() {}
 
   public static initApp(app: Express): void {
     DB.config.MYSQL_HOST = app.get("MYSQL_HOST");

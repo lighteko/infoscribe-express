@@ -5,9 +5,7 @@ const app = createApp();
 async function main() {
   const PORT = 8080;
   app.listen(`${PORT}`, () => {
-    console.log(`
-      🛡️  Server listening on port: ${PORT} 🛡️
-    `);
+    console.log(`\n* Server running on http://127.0.0.1:${PORT}\n`);
   });
 }
 
