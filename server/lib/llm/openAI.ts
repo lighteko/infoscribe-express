@@ -12,6 +12,7 @@ class OpenAI {
 
   public static async sendRequest(messages: string) {
     const res = await this._llm.invoke(messages);
+    return res.content;
   }
 }
 
