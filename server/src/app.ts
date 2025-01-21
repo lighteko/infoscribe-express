@@ -2,23 +2,7 @@ import express, { Request, Response, NextFunction, Application } from "express";
 import { BaseConfig } from "../config";
 import DB from "@lib/infra/mysql";
 import cors from "cors";
-import winston from "winston";
-
-const { combine, timestamp, label, printf } = winston.format;
-
-const logFormat = printf(({ level, message, label, timestamp }) => {
-  return `${timestamp} [${label}] ${level}: ${message}`;
-});
-
-const logger = winston.createLogger({
-  level: "debug",
-  format: combine(
-    timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-    label({ label: "Express" }),
-    logFormat
-  ),
-  transports: [new winston.transports.Console()],
-});
+import initLogger from "@src/logger";
 
 function createApp() {
   const app = express();
@@ -26,6 +10,7 @@ function createApp() {
   DB.initApp(app);
   app.use(express.json());
   app.use(cors());
+  const logger = initLogger("debug");
 
   app.use((req: Request, _res: Response, next: NextFunction) => {
     logger.debug(`Request Path: ${req.path}`);

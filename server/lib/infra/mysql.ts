@@ -1,16 +1,9 @@
 import { Express } from "express";
 import { createPool, Pool, PoolConnection } from "mysql2/promise";
 import * as sqlFormatter from "sql-formatter";
+import initLogger from "@src/logger";
 
-import * as winston from "winston";
-
-const logger = winston.createLogger({
-  level: "error",
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.Console(),
-  ],
-});
+const logger = initLogger("error");
 
 interface DBConfig {
   MYSQL_HOST: string;
@@ -57,7 +50,9 @@ class DB {
     callback: (connection: PoolConnection) => Promise<T>
   ): Promise<T> {
     if (!DB.connectionPool) {
-      throw new Error("Connection pool is not initialized. Call initApp first.");
+      throw new Error(
+        "Connection pool is not initialized. Call initApp first."
+      );
     }
 
     const connection = await DB.connectionPool.getConnection();
@@ -68,7 +63,9 @@ class DB {
       return result;
     } catch (error) {
       await connection.rollback();
-      logger.error(sqlFormatter.format(connection.format((error as any).sql ?? "")));
+      logger.error(
+        sqlFormatter.format(connection.format((error as any).sql ?? ""))
+      );
       logger.error(error);
       throw error;
     } finally {
