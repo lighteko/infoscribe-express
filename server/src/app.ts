@@ -1,9 +1,10 @@
 import express, { Request, Response, NextFunction, Application } from "express";
 import { BaseConfig } from "../config";
 import DB from "@lib/infra/mysql";
-import OpenAI from "@lib/llm/openAI"
+import OpenAI from "@lib/llm/openAI";
 import cors from "cors";
 import initLogger from "@src/logger";
+import userRoutes from "@user/routes";
 
 function createApp() {
   const app = express();
@@ -51,6 +52,8 @@ function createApp() {
   return app;
 }
 
-function registerRoutes(app: Application) {}
+function registerRoutes(app: Application) {
+  app.use("/user", userRoutes);
+}
 
 export default createApp;
