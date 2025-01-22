@@ -2,7 +2,7 @@ import { UserService } from "@user/service/service";
 import { Request, Response } from "express";
 import { abort, send } from "@src/output";
 import { CreateUserRequestDTO, GetUserResponseDTO } from "../dto/dto";
-import { plainToClass } from "class-transformer";
+import { plainToClass as serialize } from "class-transformer";
 
 export class GetUserController {
   service: UserService;
@@ -11,9 +11,13 @@ export class GetUserController {
     this.service = new UserService();
   }
 
-  async get(req: Request, res: Response) {
+  get = async (req: Request, res: Response) => {
     try {
       const userId = req.query.userId as string;
+      if (!userId) {
+        abort(res, 400, "'userId' was not given through query string");
+        return;
+      }
       const response = await this.service.getUser(userId);
       send(res, 200, response, GetUserResponseDTO);
     } catch (e: any) {
@@ -28,12 +32,12 @@ export class CreateUserController {
   constructor() {
     this.service = new UserService();
   }
-
-  async post(req: Request, res: Response) {
+  
+  post = async (req: Request, res: Response) => {
     try {
-      const serialized = plainToClass(CreateUserRequestDTO, req.body);
+      const serialized = serialize(CreateUserRequestDTO, req.body);
       await this.service.createUser(serialized);
-      send(res, 200, { message: "User created successfully" });
+      send(res, 201, { message: "User created successfully" });
     } catch (e: any) {
       abort(res, 500, e.toString());
     }

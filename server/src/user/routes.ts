@@ -5,6 +5,7 @@ import {
 } from "./controller/controller";
 
 const router = Router();
+
 const getUserController = new GetUserController();
 const createUserController = new CreateUserController();
 

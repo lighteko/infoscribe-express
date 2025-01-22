@@ -13,6 +13,6 @@ export class UserService {
   }
 
   async createUser(inputData: CreateUserRequestDTO) {
-    await this.createUser(inputData);
+    await this.dao.createUser(inputData);
   }
 }

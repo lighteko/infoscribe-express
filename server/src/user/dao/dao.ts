@@ -18,11 +18,11 @@ export class UserDAO {
         ${inputData.username}, 
         ${inputData.firstName}, 
         ${inputData.lastName},
+        ${inputData.password},
         ${inputData.email},
         CURRENT_TIMESTAMP
       )
     `;
-
     await this.db.withConnection(
       async (connection) => await connection.query(query)
     );
