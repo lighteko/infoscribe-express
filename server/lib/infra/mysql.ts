@@ -1,6 +1,6 @@
 import { Express } from "express";
 import { createPool, Pool, PoolConnection } from "mysql2/promise";
-import * as sqlFormatter from "sql-formatter";
+import { format } from "sql-formatter";
 import initLogger from "@src/logger";
 
 const logger = initLogger("error");
@@ -14,7 +14,7 @@ interface DBConfig {
 }
 
 class DB {
-  private constructor() {}
+  constructor() {}
   private static config: DBConfig = {
     MYSQL_HOST: "127.0.0.1",
     MYSQL_USER: "root",
@@ -45,7 +45,7 @@ class DB {
     }
   }
 
-  public static async withConnection<T>(
+  public async withConnection<T>(
     callback: (connection: PoolConnection) => Promise<T>
   ): Promise<T> {
     if (!DB.connectionPool) {
@@ -63,7 +63,7 @@ class DB {
     } catch (error) {
       await connection.rollback();
       logger.error(
-        sqlFormatter.format(connection.format((error as any).sql ?? ""))
+        format(connection.format((error as any).sql ?? ""))
       );
       logger.error(error);
       throw error;

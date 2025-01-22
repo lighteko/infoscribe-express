@@ -18,9 +18,11 @@
     "paths": {
       "@middlewares/*": ["./src/middlewares/*"],
       "@lib/*": ["./lib/*"],
-      "@src/*": ["./src/*"]
+      "@src/*": ["./src/*"],
+      "@user/*": ["./src/user/*"]
     },
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "experimentalDecorators": true
   },
   "include": ["src", "main.ts", "config.ts"],
   "exclude": ["node_modules"]
