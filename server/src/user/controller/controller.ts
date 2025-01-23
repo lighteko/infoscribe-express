@@ -1,7 +1,11 @@
 import { UserService } from "@user/service/service";
 import { Request, Response } from "express";
 import { abort, send } from "@src/output";
-import { CreateUserRequestDTO, GetUserResponseDTO } from "../dto/dto";
+import {
+  CreateUserRequestDTO,
+  GetUserResponseDTO,
+  UpdateUserRequestDTO,
+} from "../dto/dto";
 import { plainToClass as serialize } from "class-transformer";
 
 export class GetUserController {
@@ -23,7 +27,7 @@ export class GetUserController {
     } catch (e: any) {
       abort(res, 500, e.toString());
     }
-  }
+  };
 }
 
 export class CreateUserController {
@@ -32,7 +36,7 @@ export class CreateUserController {
   constructor() {
     this.service = new UserService();
   }
-  
+
   post = async (req: Request, res: Response) => {
     try {
       const serialized = serialize(CreateUserRequestDTO, req.body);
@@ -41,5 +45,23 @@ export class CreateUserController {
     } catch (e: any) {
       abort(res, 500, e.toString());
     }
+  };
+}
+
+export class UpdateUserController {
+  service: UserService;
+
+  constructor() {
+    this.service = new UserService();
   }
+
+  put = async (req: Request, res: Response) => {
+    try {
+      const serialized = serialize(UpdateUserRequestDTO, req.body);
+      await this.service.updateUser(serialized);
+      send(res, 200, { message: "User updated successfully" });
+    } catch (e: any) {
+      abort(res, 500, e.toString());
+    }
+  };
 }

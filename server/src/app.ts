@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction, Application } from "express";
 import { BaseConfig } from "../config";
 import DB from "@lib/infra/mysql";
-import OpenAI from "@lib/llm/openAI";
 import cors from "cors";
 import initLogger from "@src/logger";
 import userRoutes from "@user/routes";
@@ -10,7 +9,6 @@ function createApp() {
   const app = express();
   new BaseConfig(app);
   DB.initApp(app);
-  OpenAI.initApp(app);
   app.use(express.json());
   app.use(cors());
   const logger = initLogger("debug");

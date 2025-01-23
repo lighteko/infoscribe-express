@@ -1,5 +1,5 @@
 import { UserDAO } from "@user/dao/dao";
-import { CreateUserRequestDTO } from "@user/dto/dto";
+import { CreateUserRequestDTO, UpdateUserRequestDTO } from "@user/dto/dto";
 
 export class UserService {
   dao: UserDAO;
@@ -14,5 +14,9 @@ export class UserService {
 
   async createUser(inputData: CreateUserRequestDTO) {
     await this.dao.createUser(inputData);
+  }
+
+  async updateUser(inputData: UpdateUserRequestDTO) {
+    await this.dao.updateUser(inputData);
   }
 }

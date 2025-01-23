@@ -1,6 +1,6 @@
 import DB from "@lib/infra/mysql";
 import SQL from "sql-template-strings";
-import { CreateUserRequestDTO } from "@user/dto/dto";
+import { CreateUserRequestDTO, UpdateUserRequestDTO } from "@user/dto/dto";
 import { v4 as uuid4 } from "uuid";
 
 export class UserDAO {
@@ -40,13 +40,27 @@ export class UserDAO {
       WHERE USER_ID = ${userId}
     `;
 
-    const result = await this.db.withConnection(
-      async (connection) => {
-        const [row] = await connection.query(query);
-        return row;
-      }
-    );
+    const result = await this.db.withConnection(async (connection) => {
+      const [row] = await connection.query(query);
+      return row;
+    });
 
     return result;
+  }
+
+  async updateUser(inputData: UpdateUserRequestDTO) {
+    const query = SQL`
+    UPDATE INSC_USER_L
+    SET USERNAME = ${inputData.username},
+        FIRST_NM = ${inputData.firstName},
+        LAST_NM = ${inputData.lastName},
+        PASSWRD = ${inputData.password},
+        EMAIL = ${inputData.email}
+    WHERE USER_ID = ${inputData.userId}
+    `;
+
+    await this.db.withConnection(
+      async (connection) => await connection.query(query)
+    );
   }
 }

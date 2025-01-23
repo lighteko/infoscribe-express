@@ -1,9 +1,23 @@
-import { Expose, Exclude } from 'class-transformer';
+import { Expose, Exclude } from "class-transformer";
 
 export class GetUserResponseDTO {
   @Expose()
-  id!: number;
+  userId!: string;
 
+  @Expose()
+  username!: string;
+
+  @Expose()
+  firstName!: string;
+
+  @Expose()
+  lastName!: string;
+
+  @Expose()
+  email!: string;
+}
+
+export class CreateUserRequestDTO {
   @Expose()
   username!: string;
 
@@ -20,7 +34,10 @@ export class GetUserResponseDTO {
   email!: string;
 }
 
-export class CreateUserRequestDTO {
+export class UpdateUserRequestDTO {
+  @Expose()
+  userId!: string;
+
   @Expose()
   username!: string;
 
@@ -31,8 +48,8 @@ export class CreateUserRequestDTO {
   lastName!: string;
 
   @Expose()
-  password!: string;
-
-  @Expose()
   email!: string;
+  
+  @Exclude()
+  password!: string;
 }
