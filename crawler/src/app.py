@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from lib.news.gnews import GNews
 from lib.llm.llm import LLM
 from lib.infra.s3 import S3
 
@@ -14,8 +15,9 @@ def create_app():
     app = Flask(__name__)
 
     BaseConfig(app)
-    S3.init_app(app)
     LLM.init_app(app)
+    S3.init_app(app)
+    GNews.init_app(app)
     CORS(app)
     app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
     register_blueprints(app)
