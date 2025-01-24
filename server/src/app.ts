@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction, Application } from "express";
-import { BaseConfig } from "../config";
+import { BaseConfig } from "../lib/config";
 import DB from "@lib/infra/mysql";
 import cors from "cors";
 import initLogger from "@src/logger";

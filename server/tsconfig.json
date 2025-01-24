@@ -24,6 +24,6 @@
     "outDir": "./dist",
     "experimentalDecorators": true
   },
-  "include": ["src", "main.ts", "config.ts"],
+  "include": ["src", "main.ts", "lib/config.ts"],
   "exclude": ["node_modules"]
 }

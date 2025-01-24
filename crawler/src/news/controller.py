@@ -10,6 +10,10 @@ class NewsController(MethodView):
 
     def get(self):
         response = self.service.make_newsletter(
-            professionalism=3, keywords=["economy", "stock"])
+            lang="kr",
+            country="ko",
+            level="GENERAL",
+            keywords=["economy", "stock"]
+        )
 
         return response
