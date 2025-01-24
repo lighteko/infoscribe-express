@@ -12,12 +12,6 @@ class BaseConfig(object):
     # LOGGER
     LOGGING_PATH = '../logs'
 
-    # AWS
-    AWS_REGION = os.environ.get('AWS_REGION', '')
-    AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY', '')
-    AWS_SECRET_KEY = os.environ.get('AWS_SECRET_KEY', '')
-    AWS_BUCKET_NAME = os.environ.get('AWS_BUCKET_NAME', '')
-
     # LANGCHAIN
     LANGSMITH_TRACING = os.environ.get('LANGSMITH_TRACING', '')
     LANGSMITH_ENDPOINT = os.environ.get('LANGSMITH_ENDPOINT', '')

@@ -26,8 +26,6 @@ class LLM:
             ("ai", "Got it, here we go"),
             ("human", str(data).replace("{", "[").replace("}", "]"))
         ])
-
-        print(preset, data)
         prompt = messages.format_messages()
 
         return prompt
