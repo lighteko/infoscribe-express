@@ -6,6 +6,11 @@ dotenv.config();
 export class BaseConfig {
   static LOGGING_PATH = "../logs";
 
+  static AWS_REGION = process.env.AWS_REGION || "";
+  static AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY || "";
+  static AWS_SECRET_KEY = process.env.AWS_SECRET_KEY || "";
+  static AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME || "";
+
   static MYSQL_HOST = process.env.MYSQL_HOST || "db host";
   static MYSQL_USER = process.env.MYSQL_USER || "db user";
   static MYSQL_PASSWORD = process.env.MYSQL_PASSWORD || "db password";
@@ -25,6 +30,10 @@ export class BaseConfig {
       MYSQL_DB: this.MYSQL_DB,
       MYSQL_PORT: this.MYSQL_PORT,
       MYSQL_POOL_SIZE: this.MYSQL_POOL_SIZE,
+      AWS_REGION: this.AWS_REGION,
+      AWS_ACCESS_KEY: this.AWS_ACCESS_KEY,
+      AWS_SECRET_KEY: this.AWS_SECRET_KEY,
+      AWS_BUCKET_NAME: this.AWS_BUCKET_NAME,
     });
 
     console.log("App configuration initialized.");
