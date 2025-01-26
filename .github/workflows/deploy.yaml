@@ -27,7 +27,7 @@ jobs:
       - name: Build, tag, and push Docker image
         run: |
           IMAGE_URI=686255989119.dkr.ecr.us-east-2.amazonaws.com/infoscribe-flask:latest
-          docker build -t $IMAGE_URI . 
+          docker build -t $IMAGE_URI -f generator/Dockerfile . 
           docker push $IMAGE_URI
 
       - name: Deploy to Kubernetes
