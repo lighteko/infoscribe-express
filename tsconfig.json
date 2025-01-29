@@ -19,7 +19,8 @@
       "@middlewares/*": ["./src/middlewares/*"],
       "@lib/*": ["./lib/*"],
       "@src/*": ["./src/*"],
-      "@user/*": ["./src/user/*"]
+      "@user/*": ["./src/user/*"],
+      "@news/*": ["./src/news/*"]
     },
     "outDir": "./dist",
     "experimentalDecorators": true
