@@ -1,11 +1,8 @@
-import { Expose, Exclude } from "class-transformer";
+import { Expose } from "class-transformer";
 
-export class CreateNewsletterProviderDTO {
+export class CreateProviderDTO {
   @Expose()
-  userId!: string;
-
-  @Expose()
-  country!: string;
+  creatorId!: string;
 
   @Expose()
   language!: string;
@@ -14,7 +11,7 @@ export class CreateNewsletterProviderDTO {
   categories!: string[];
 
   @Expose()
-  sendingday!: string;
+  weekday!: string;
 }
 
 export class CreateSubscriptionDTO {
