@@ -16,7 +16,7 @@ export class CreateProviderDTO {
 
 export class CreateSubscriptionDTO {
   @Expose()
-  newsId!: string;
+  providerId!: string;
 
   @Expose()
   userId!: string;

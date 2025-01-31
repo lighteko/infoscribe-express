@@ -11,9 +11,9 @@ export class NewsDAO {
 
   async createProvider(inputData: CreateProviderDTO) {
     const providerId = uuid4().toString();
-    const provider_query = SQL`
-      INSERT INTO INSC_PRVDR_L
-        (PRVDR_ID, CREATR_ID, WKDAY, CREA_DT)
+    const providerQuery = SQL`
+      INSERT INTO INSC_PVDR_L
+        (PROVIDER_ID, CREATOR_ID, WKDAY, CREA_DT)
       VALUES (
         ${providerId},
         ${inputData.creatorId},
@@ -22,8 +22,48 @@ export class NewsDAO {
       )
     `;
 
+    const categoriesQuery = SQL`
+      INSERT INTO INSC_PV_CT_MAP_L
+        (MAP_ID, PROVIDER_ID, CATEGORY_ID, CREA_DT)
+      VALUES
+    `;
+
+    const categoryValues = inputData.categories.map(
+      (category) =>
+        SQL`(${uuid4().toString()}, ${providerId}, ${category}, CURRENT_TIMESTAMP)`
+    );
+
+    for (let value of categoryValues) {
+      categoriesQuery.append(value);
+    }
+
+    await this.db.withConnection(async (conn) => {
+      try {
+        await conn.beginTransaction();
+        await conn.query(providerQuery);
+        await conn.query(categoriesQuery);
+        await conn.commit();
+      } catch (error) {
+        await conn.rollback();
+        throw error;
+      }
+    });
+  }
+
+  async createSubscription(inputData: CreateSubscriptionDTO) {
+    const query = SQL`
+      INSERT INTO INSC_SBSC_L
+        (SUBSC_ID, USER_ID, PROVIDER_ID, CREA_DT)
+      VALUES (
+        ${uuid4().toString()},
+        ${inputData.userId},
+        ${inputData.providerId},
+        CURRENT_TIMESTAMP
+      )
+    `;
+
     await this.db.withConnection(
-      async (connection) => await connection.query(provider_query)
+      async (connection) => await connection.query(query)
     );
   }
 }
