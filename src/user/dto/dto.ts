@@ -1,5 +1,6 @@
-import { Exclude } from "class-transformer";
+import { DataClass, Exclude } from "ts-data-object";
 
+@DataClass()
 export class GetUserResponseDTO {
   userId!: string;
   username!: string;
@@ -8,6 +9,7 @@ export class GetUserResponseDTO {
   email!: string;
 }
 
+@DataClass()
 export class CreateUserRequestDTO {
   username!: string;
   firstName!: string;
@@ -18,6 +20,7 @@ export class CreateUserRequestDTO {
   password!: string;
 }
 
+@DataClass()
 export class UpdateUserRequestDTO {
   userId!: string;
   username!: string;

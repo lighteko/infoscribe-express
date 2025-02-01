@@ -2624,6 +2624,11 @@ readdirp@~3.6.0:
   dependencies:
     picomatch "^2.2.1"
 
+reflect-metadata@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/reflect-metadata/-/reflect-metadata-0.2.2.tgz#400c845b6cba87a21f2c65c4aeb158f4fa4d9c5b"
+  integrity sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==
+
 resolve-pkg-maps@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/resolve-pkg-maps/-/resolve-pkg-maps-1.0.0.tgz"
@@ -2939,6 +2944,13 @@ triple-beam@^1.3.0:
   version "1.4.1"
   resolved "https://registry.npmjs.org/triple-beam/-/triple-beam-1.4.1.tgz"
   integrity sha512-aZbgViZrg1QNcG+LULa7nhZpJTZSLm/mXnHXnbAbjmN5aSa0y7V+wvv6+4WaBtpISJzThKy+PIPxc1Nq1EJ9mg==
+
+ts-data-object@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/ts-data-object/-/ts-data-object-1.0.1.tgz#42d7afa0066998736553c7b0678a4667f24d4843"
+  integrity sha512-GUf0JJecHTOhtlzDG+ooJHnvocZi382k4Zkb+OGpLnz/1q/11+6sGzQ/N1YpCO/viSW539EU71Q8GmhVDhx6lA==
+  dependencies:
+    reflect-metadata "^0.2.2"
 
 tslib@^2.6.2:
   version "2.8.1"

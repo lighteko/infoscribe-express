@@ -6,7 +6,7 @@ import {
   GetUserResponseDTO,
   UpdateUserRequestDTO,
 } from "../dto/dto";
-import { plainToClass as serialize } from "class-transformer";
+import { serialize } from "ts-data-object";
 
 export class GetUserController {
   service: UserService;
@@ -39,7 +39,7 @@ export class CreateUserController {
 
   post = async (req: Request, res: Response) => {
     try {
-      const serialized = serialize(CreateUserRequestDTO, req.body);
+      const serialized = await serialize(CreateUserRequestDTO, req.body);
       await this.service.createUser(serialized);
       send(res, 201, { message: "User created successfully" });
     } catch (e: any) {
@@ -57,7 +57,7 @@ export class UpdateUserController {
 
   put = async (req: Request, res: Response) => {
     try {
-      const serialized = serialize(UpdateUserRequestDTO, req.body);
+      const serialized = await serialize(UpdateUserRequestDTO, req.body);
       await this.service.updateUser(serialized);
       send(res, 200, { message: "User updated successfully" });
     } catch (e: any) {

@@ -1,6 +1,6 @@
-import { Expose, Transform, Type } from "class-transformer";
-import { IsArray, IsString, ValidateNested } from "class-validator";
+import { DataClass } from "ts-data-object"
 
+@DataClass()
 export class CreateProviderDTO {
   creatorId!: string;
   language!: string;
@@ -8,27 +8,22 @@ export class CreateProviderDTO {
   weekday!: string;
 }
 
+@DataClass()
 export class CreateSubscriptionDTO {
   providerId!: string;
   userId!: string;
 }
 
+@DataClass()
 export class Provider {
   providerId!: string;
   creatorId!: string;
   weekday!: string;
-
-  @IsArray()
   categories!: string[];
-  
-
-  @Transform(({ value }) => new Date(value))
   createdDate!: Date;
 }
 
+@DataClass()
 export class GetAllProvidersResponse {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Provider)
   providers!: Provider[];
 }
