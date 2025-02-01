@@ -1,4 +1,5 @@
-import { Expose } from "class-transformer";
+import { Expose, Transform, Type } from "class-transformer";
+import { IsArray, IsString, ValidateNested } from "class-validator";
 
 export class CreateProviderDTO {
   creatorId!: string;
@@ -12,8 +13,22 @@ export class CreateSubscriptionDTO {
   userId!: string;
 }
 
-class Provider {
+export class Provider {
   providerId!: string;
+  creatorId!: string;
+  weekday!: string;
+
+  @IsArray()
+  categories!: string[];
+  
+
+  @Transform(({ value }) => new Date(value))
+  createdDate!: Date;
 }
 
-export class GetAllProvidersResponse {}
+export class GetAllProvidersResponse {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Provider)
+  providers!: Provider[];
+}
