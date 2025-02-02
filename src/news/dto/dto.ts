@@ -15,7 +15,7 @@ export class CreateSubscriptionDTO {
 }
 
 @DataClass()
-export class Provider {
+export class GetProviderResponseDTO {
   providerId!: string;
   creatorId!: string;
   weekday!: string;
@@ -24,6 +24,6 @@ export class Provider {
 }
 
 @DataClass()
-export class GetAllProvidersResponse {
-  providers!: Provider[];
+export class GetAllProvidersResponseDTO {
+  providers!: GetProviderResponseDTO[];
 }

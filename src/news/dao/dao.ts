@@ -38,15 +38,8 @@ export class NewsDAO {
     }
 
     await this.db.withConnection(async (conn) => {
-      try {
-        await conn.beginTransaction();
-        await conn.query(providerQuery);
-        await conn.query(categoriesQuery);
-        await conn.commit();
-      } catch (error) {
-        await conn.rollback();
-        throw error;
-      }
+      await conn.query(providerQuery);
+      await conn.query(categoriesQuery);
     });
   }
 
@@ -60,6 +53,52 @@ export class NewsDAO {
         ${inputData.providerId},
         CURRENT_TIMESTAMP
       )
+    `;
+
+    await this.db.withConnection(
+      async (connection) => await connection.query(query)
+    );
+  }
+
+  async getAllProviders() {
+    const query = SQL`
+      SELECT 
+        PROVIDER_ID as providerId,
+        CREATOR_ID as creatorId,
+        WKDAY as weekday,
+        CREA_DT as createdDate
+      FROM INSC_PVDR_L
+    `;
+
+    const [rows] = await this.db.withConnection(
+      async (conn) => await conn.query(query)
+    );
+
+    return rows;
+  }
+
+  async getProvider(providerId: string) {
+    const query = SQL`
+      SELECT 
+        PROVIDER_ID as providerId,
+        CREATOR_ID as creatorId,
+        WKDAY as weekday,
+        CREA_DT as createdDate
+      FROM INSC_PVDR_L
+      WHERE PROVIDER_ID = ${providerId}
+    `;
+
+    const [row] = await this.db.withConnection(
+      async (conn) => await conn.query(query)
+    );
+
+    return row;
+  }
+
+  async deleteSubscription(subscriptionId: string) {
+    const query = SQL`
+      DELETE FROM INSC_SBSC_L
+      WHERE SUBSC_ID = ${subscriptionId}
     `;
 
     await this.db.withConnection(
