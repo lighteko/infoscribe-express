@@ -2945,11 +2945,13 @@ triple-beam@^1.3.0:
   resolved "https://registry.npmjs.org/triple-beam/-/triple-beam-1.4.1.tgz"
   integrity sha512-aZbgViZrg1QNcG+LULa7nhZpJTZSLm/mXnHXnbAbjmN5aSa0y7V+wvv6+4WaBtpISJzThKy+PIPxc1Nq1EJ9mg==
 
-ts-data-object@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/ts-data-object/-/ts-data-object-1.0.1.tgz#42d7afa0066998736553c7b0678a4667f24d4843"
-  integrity sha512-GUf0JJecHTOhtlzDG+ooJHnvocZi382k4Zkb+OGpLnz/1q/11+6sGzQ/N1YpCO/viSW539EU71Q8GmhVDhx6lA==
+ts-data-object@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/ts-data-object/-/ts-data-object-1.0.3.tgz#2928be3924fd0852f0651ee518432b5bc16bd3ff"
+  integrity sha512-IDe0waKp4WkJEtK2JnHFw/mJRJ2KqosXlCYIwHkSaeF+J/G1h3EHx7PB2ghI7qu1Pf6ghvd7moTQTUDxbaiIbA==
   dependencies:
+    class-transformer "^0.5.1"
+    class-validator "^0.14.1"
     reflect-metadata "^0.2.2"
 
 tslib@^2.6.2:
