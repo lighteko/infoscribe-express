@@ -17,11 +17,12 @@ export class NewsService {
   }
 
   async createProvider(inputData: CreateProviderDTO) {
+    // TODO: creat scheduler
     this.dao.createProvider(inputData);
   }
 
   async createSubscription(inputData: CreateSubscriptionDTO) {
-    // TODO: call flask-api to create scheduler
+    // TODO: create scheduler
     this.dao.createSubscription(inputData);
   }
 
