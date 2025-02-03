@@ -18,6 +18,8 @@ export class BaseConfig {
   static MYSQL_PORT = process.env.MYSQL_PORT || "db port";
   static MYSQL_POOL_SIZE = parseInt(process.env.MYSQL_POOL_SIZE || "5", 10);
 
+  static NEWSLETTER_SERVER_URL = process.env.NEWSLETTER_SERVER_URL || "";
+
   constructor(app: Express) {
     BaseConfig.initApp(app);
   }
@@ -34,6 +36,7 @@ export class BaseConfig {
       AWS_ACCESS_KEY: this.AWS_ACCESS_KEY,
       AWS_SECRET_KEY: this.AWS_SECRET_KEY,
       AWS_BUCKET_NAME: this.AWS_BUCKET_NAME,
+      NEWSLETTER_SERVER_URL: this.NEWSLETTER_SERVER_URL,
     });
 
     console.log("App configuration initialized.");
