@@ -23,7 +23,7 @@ export class UserDAO {
         CURRENT_TIMESTAMP
       )
     `;
-    const cursor = await this.db.cursor();
+    const cursor = this.db.cursor();
     await cursor.execute(query);
   }
 
@@ -39,7 +39,7 @@ export class UserDAO {
       WHERE USER_ID = ${userId}
     `;
 
-    const cursor = await this.db.cursor();
+    const cursor = this.db.cursor();
     const row = await cursor.fetchOne(query);
 
     return row;
@@ -56,7 +56,7 @@ export class UserDAO {
     WHERE USER_ID = ${inputData.userId}
     `;
 
-    const cursor = await this.db.cursor();
+    const cursor = this.db.cursor();
     await cursor.execute(query);
   }
 }

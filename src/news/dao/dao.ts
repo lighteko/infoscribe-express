@@ -37,7 +37,7 @@ export class NewsDAO {
       categoriesQuery.append(value);
     }
 
-    const cursor = await this.db.cursor();
+    const cursor = this.db.cursor();
     await cursor.execute(providerQuery);
     await cursor.execute(categoriesQuery);
   }
@@ -54,7 +54,7 @@ export class NewsDAO {
       )
     `;
 
-    const cursor = await this.db.cursor();
+    const cursor = this.db.cursor();
     await cursor.execute(query);
   }
 
@@ -68,7 +68,7 @@ export class NewsDAO {
       FROM INSC_PVDR_L
     `;
 
-    const cursor = await this.db.cursor();
+    const cursor = this.db.cursor();
     const rows = await cursor.fetchAll(query);
 
     return rows;
@@ -85,7 +85,7 @@ export class NewsDAO {
       WHERE PROVIDER_ID = ${providerId}
     `;
 
-    const cursor = await this.db.cursor();
+    const cursor = this.db.cursor();
     const row = await cursor.fetchOne(query);
 
     return row;
@@ -97,7 +97,7 @@ export class NewsDAO {
       WHERE SUBSC_ID = ${subscriptionId}
     `;
 
-    const cursor = await this.db.cursor();
+    const cursor = this.db.cursor();
     await cursor.execute(query);
   }
 }

@@ -99,7 +99,7 @@ class DB {
     }
   }
 
-  public async cursor() {
+  public cursor() {
     return {
       fetchAll: async (
         statement: SQLStatement,
