@@ -22,6 +22,7 @@
     "sql-template-strings": "^2.2.2",
     "sqlstring": "^2.3.3",
     "ts-data-object": "^1.0.3",
+    "tsc-alias": "^1.8.10",
     "uuid": "^11.0.5",
     "winston": "^3.17.0"
   },
@@ -36,6 +37,7 @@
   "scripts": {
     "start": "node dist/main.js",
     "build": "tsc -p .",
+    "clean-path": "tsc-alias",
     "dev": "nodemon --watch \"src/**/*.ts\" --exec \"tsx\" ./main.ts"
   }
 }
