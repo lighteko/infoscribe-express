@@ -40,9 +40,9 @@ export class UserDAO {
     `;
 
     const cursor = await this.db.cursor();
-    const rows = await cursor.execute(query);
+    const row = await cursor.fetchOne(query);
 
-    return rows[0];
+    return row;
   }
 
   async updateUser(inputData: UpdateUserRequestDTO) {

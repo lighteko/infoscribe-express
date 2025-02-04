@@ -69,7 +69,7 @@ export class NewsDAO {
     `;
 
     const cursor = await this.db.cursor();
-    const rows = await cursor.execute(query);
+    const rows = await cursor.fetchAll(query);
 
     return rows;
   }
@@ -86,9 +86,9 @@ export class NewsDAO {
     `;
 
     const cursor = await this.db.cursor();
-    const rows = await cursor.execute(query);
+    const row = await cursor.fetchOne(query);
 
-    return rows[0];
+    return row;
   }
 
   async deleteSubscription(subscriptionId: string) {
