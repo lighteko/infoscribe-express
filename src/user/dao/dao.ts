@@ -23,9 +23,8 @@ export class UserDAO {
         CURRENT_TIMESTAMP
       )
     `;
-    await this.db.withConnection(
-      async (connection) => await connection.query(query)
-    );
+    const cursor = await this.db.cursor();
+    await cursor.execute(query);
   }
 
   async getUser(userId: string) {
@@ -40,12 +39,10 @@ export class UserDAO {
       WHERE USER_ID = ${userId}
     `;
 
-    const result = await this.db.withConnection(async (connection) => {
-      const [row] = await connection.query(query);
-      return row;
-    });
+    const cursor = await this.db.cursor();
+    const rows = await cursor.execute(query);
 
-    return result;
+    return rows[0];
   }
 
   async updateUser(inputData: UpdateUserRequestDTO) {
@@ -59,8 +56,7 @@ export class UserDAO {
     WHERE USER_ID = ${inputData.userId}
     `;
 
-    await this.db.withConnection(
-      async (connection) => await connection.query(query)
-    );
+    const cursor = await this.db.cursor();
+    await cursor.execute(query);
   }
 }

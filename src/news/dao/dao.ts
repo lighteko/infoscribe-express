@@ -37,10 +37,9 @@ export class NewsDAO {
       categoriesQuery.append(value);
     }
 
-    await this.db.withConnection(async (conn) => {
-      await conn.query(providerQuery);
-      await conn.query(categoriesQuery);
-    });
+    const cursor = await this.db.cursor();
+    await cursor.execute(providerQuery);
+    await cursor.execute(categoriesQuery);
   }
 
   async createSubscription(inputData: CreateSubscriptionDTO) {
@@ -55,9 +54,8 @@ export class NewsDAO {
       )
     `;
 
-    await this.db.withConnection(
-      async (connection) => await connection.query(query)
-    );
+    const cursor = await this.db.cursor();
+    await cursor.execute(query);
   }
 
   async getAllProviders() {
@@ -70,9 +68,8 @@ export class NewsDAO {
       FROM INSC_PVDR_L
     `;
 
-    const [rows] = await this.db.withConnection(
-      async (conn) => await conn.query(query)
-    );
+    const cursor = await this.db.cursor();
+    const rows = await cursor.execute(query);
 
     return rows;
   }
@@ -88,11 +85,10 @@ export class NewsDAO {
       WHERE PROVIDER_ID = ${providerId}
     `;
 
-    const [row] = await this.db.withConnection(
-      async (conn) => await conn.query(query)
-    );
+    const cursor = await this.db.cursor();
+    const rows = await cursor.execute(query);
 
-    return row;
+    return rows[0];
   }
 
   async deleteSubscription(subscriptionId: string) {
@@ -101,8 +97,7 @@ export class NewsDAO {
       WHERE SUBSC_ID = ${subscriptionId}
     `;
 
-    await this.db.withConnection(
-      async (connection) => await connection.query(query)
-    );
+    const cursor = await this.db.cursor();
+    await cursor.execute(query);
   }
 }

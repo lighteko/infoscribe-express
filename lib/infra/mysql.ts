@@ -1,7 +1,13 @@
 import { Express } from "express";
-import { createPool, Pool, PoolConnection } from "mysql2/promise";
+import {
+  createPool,
+  Pool,
+  PoolConnection,
+  RowDataPacket,
+} from "mysql2/promise";
 import { format } from "sql-formatter";
 import initLogger from "@src/logger";
+import { SQLStatement } from "sql-template-strings";
 
 const logger = initLogger("error");
 
@@ -57,29 +63,30 @@ class DB {
     }
   }
 
-  public async withConnection<T>(
-    callback: (connection: PoolConnection) => Promise<T>
-  ): Promise<T> {
-    if (!DB.connectionPool) {
-      throw new Error(
-        "Connection pool is not initialized. Call initApp first."
-      );
-    }
+  public async cursor() {
+    return {
+      execute: async function (statement: SQLStatement) {
+        if (!DB.connectionPool) {
+          throw new Error(
+            "Connection pool is not initialized. Call initApp first."
+          );
+        }
 
-    const connection = await DB.connectionPool.getConnection();
-
-    try {
-      const result = await callback(connection);
-      await connection.commit();
-      return result;
-    } catch (error) {
-      await connection.rollback();
-      logger.error(format(connection.format((error as any).sql ?? "")));
-      logger.error(error);
-      throw error;
-    } finally {
-      connection.release();
-    }
+        const connection = await DB.connectionPool.getConnection();
+        try {
+          const result = await connection.query<RowDataPacket[]>(statement);
+          await connection.commit();
+          return result;
+        } catch (error) {
+          await connection.rollback();
+          logger.error(format(connection.format((error as any).sql ?? "")));
+          logger.error(error);
+          throw error;
+        } finally {
+          connection.release();
+        }
+      },
+    };
   }
 }
 
