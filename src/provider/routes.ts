@@ -4,7 +4,7 @@ import {
   CreateSubscriptionController,
   GetAllProvidersController,
   GetProviderController,
-} from "@news/controller/controller";
+} from "@provider/controller/controller";
 
 const router = Router();
 

@@ -1,9 +1,12 @@
 import DB from "@lib/infra/mysql";
 import SQL from "sql-template-strings";
-import { CreateProviderDTO, CreateSubscriptionDTO } from "@news/dto/dto";
+import {
+  CreateProviderDTO,
+  CreateSubscriptionDTO,
+} from "@provider/dto/dto";
 import { v4 as uuid4 } from "uuid";
 
-export class NewsDAO {
+export class ProviderDAO {
   db: DB;
   constructor() {
     this.db = new DB();

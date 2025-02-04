@@ -1,11 +1,11 @@
-import { NewsDAO } from "@news/dao/dao";
-import { CreateProviderDTO, CreateSubscriptionDTO } from "@news/dto/dto";
+import { ProviderDAO } from "@provider/dao/dao";
+import { CreateProviderDTO, CreateSubscriptionDTO } from "@provider/dto/dto";
 
-export class NewsService {
-  dao: NewsDAO;
+export class ProviderService {
+  dao: ProviderDAO;
 
   constructor() {
-    this.dao = new NewsDAO();
+    this.dao = new ProviderDAO();
   }
 
   async getAllProviders() {

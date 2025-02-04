@@ -1,20 +1,20 @@
-import { NewsService } from "@news/service/service";
+import { ProviderService } from "@provider/service/service";
 import { Request, Response } from "express";
 import { abort, send } from "@src/output";
-import {} from "@news/service/service";
+import {} from "@provider/service/service";
 import { serialize } from "ts-data-object";
 import {
   CreateProviderDTO,
   CreateSubscriptionDTO,
   GetAllProvidersResponseDTO,
   GetProviderResponseDTO,
-} from "@news/dto/dto";
+} from "@provider/dto/dto";
 
 export class GetProviderController {
-  service: NewsService;
+  service: ProviderService;
 
   constructor() {
-    this.service = new NewsService();
+    this.service = new ProviderService();
   }
 
   get = async (req: Request, res: Response) => {
@@ -33,10 +33,10 @@ export class GetProviderController {
 }
 
 export class GetAllProvidersController {
-  service: NewsService;
+  service: ProviderService;
 
   constructor() {
-    this.service = new NewsService();
+    this.service = new ProviderService();
   }
 
   get = async (_: Request, res: Response) => {
@@ -50,10 +50,10 @@ export class GetAllProvidersController {
 }
 
 export class CreateProviderController {
-  service: NewsService;
+  service: ProviderService;
 
   constructor() {
-    this.service = new NewsService();
+    this.service = new ProviderService();
   }
 
   post = async (req: Request, res: Response) => {
@@ -68,10 +68,10 @@ export class CreateProviderController {
 }
 
 export class CreateSubscriptionController {
-  service: NewsService;
+  service: ProviderService;
 
   constructor() {
-    this.service = new NewsService();
+    this.service = new ProviderService();
   }
 
   post = async (req: Request, res: Response) => {
