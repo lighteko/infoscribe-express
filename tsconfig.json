@@ -20,7 +20,8 @@
       "@lib/*": ["lib/*"],
       "@src/*": ["src/*"],
       "@user/*": ["src/user/*"],
-      "@news/*": ["src/news/*"]
+      "@provider/*": ["src/provider/*"],
+      "@letter/*": ["src/letter/*"]
     },
     "outDir": "./dist",
     "experimentalDecorators": true
@@ -28,6 +29,6 @@
   "include": ["src/**/*.ts", "main.ts", "lib/**/*.ts"],
   "exclude": ["node_modules"],
   "tsc-alias": {
-    "resolveFullPaths": true,
+    "resolveFullPaths": true
   }
 }

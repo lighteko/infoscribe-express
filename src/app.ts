@@ -5,7 +5,8 @@ import DB from "@lib/infra/mysql";
 import cors from "cors";
 import initLogger from "@src/logger";
 import userRoutes from "@user/routes";
-import newsRoutes from "@news/routes";
+import providerRoutes from "@provider/routes";
+import letterRoutes from "@letter/routes";
 
 function createApp() {
   const app = express();
@@ -57,7 +58,8 @@ function createApp() {
 
 function registerRoutes(app: Application) {
   app.use("/user", userRoutes);
-  app.use("/news", newsRoutes);
+  app.use("/provider", providerRoutes);
+  app.use("/letter", letterRoutes);
 }
 
 export default createApp;
