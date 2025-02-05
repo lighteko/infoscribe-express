@@ -2,7 +2,6 @@ import { Express } from "express";
 import {
   createPool,
   Pool,
-  PoolConnection,
   QueryResult,
   RowDataPacket,
 } from "mysql2/promise";
