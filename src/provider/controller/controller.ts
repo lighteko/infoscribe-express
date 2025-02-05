@@ -1,7 +1,6 @@
 import { ProviderService } from "@provider/service/service";
 import { Request, Response } from "express";
 import { abort, send } from "@src/output";
-import {} from "@provider/service/service";
 import { serialize } from "ts-data-object";
 import {
   CreateProviderDTO,
