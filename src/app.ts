@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction, Application } from "express";
 import { BaseConfig } from "@lib/config";
-import Builder from "@lib/external/builder";
 import DB from "@lib/infra/mysql";
 import cors from "cors";
 import initLogger from "@src/logger";
@@ -13,7 +12,6 @@ function createApp() {
 
   new BaseConfig(app);
   DB.initApp(app);
-  Builder.initApp(app);
 
   app.use(express.json());
   app.use(cors());
