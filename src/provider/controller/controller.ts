@@ -77,6 +77,7 @@ export class CreateSubscriptionController {
     try {
       const serialized = await serialize(CreateSubscriptionDTO, req.body);
       await this.service.createSubscription(serialized);
+      send(res, 201, { message: "Subscription created successfully" });
     } catch (e: any) {
       abort(res, 500, String(e));
     }

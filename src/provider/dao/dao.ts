@@ -16,10 +16,10 @@ export class ProviderDAO {
     const providerId = uuid4().toString();
     const providerQuery = SQL`
       INSERT INTO INSC_PVDR_L
-        (PROVIDER_ID, CREATOR_ID, WKDAY, CREA_DT)
+        (PROVIDER_ID, USER_ID, WKDAY, CREA_DT)
       VALUES (
         ${providerId},
-        ${inputData.creatorId},
+        ${inputData.userId},
         ${inputData.weekday},
         CURRENT_TIMESTAMP
       )
@@ -65,7 +65,7 @@ export class ProviderDAO {
     const query = SQL`
       SELECT 
         PROVIDER_ID as providerId,
-        CREATOR_ID as creatorId,
+        USER_ID as userId,
         WKDAY as weekday,
         CREA_DT as createdDate
       FROM INSC_PVDR_L
@@ -81,7 +81,7 @@ export class ProviderDAO {
     const query = SQL`
       SELECT 
         PROVIDER_ID as providerId,
-        CREATOR_ID as creatorId,
+        USER_ID as userId,
         WKDAY as weekday,
         CREA_DT as createdDate
       FROM INSC_PVDR_L
