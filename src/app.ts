@@ -1,14 +1,20 @@
 import express, { Request, Response, NextFunction, Application } from "express";
-import { BaseConfig } from "../lib/config";
+import { BaseConfig } from "@lib/config";
+import Builder from "@lib/external/builder";
 import DB from "@lib/infra/mysql";
 import cors from "cors";
 import initLogger from "@src/logger";
 import userRoutes from "@user/routes";
+import providerRoutes from "@provider/routes";
+import letterRoutes from "@letter/routes";
 
 function createApp() {
   const app = express();
+
   new BaseConfig(app);
   DB.initApp(app);
+  Builder.initApp(app);
+
   app.use(express.json());
   app.use(cors());
   const logger = initLogger("debug");
@@ -52,6 +58,8 @@ function createApp() {
 
 function registerRoutes(app: Application) {
   app.use("/user", userRoutes);
+  app.use("/provider", providerRoutes);
+  app.use("/letter", letterRoutes);
 }
 
 export default createApp;

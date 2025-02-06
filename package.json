@@ -8,17 +8,22 @@
     "@aws-sdk/client-s3": "^3.735.0",
     "@types/cors": "^2.8.17",
     "aws-sdk": "^2.1692.0",
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "multer": "^1.4.5-lts.1",
     "multer-s3": "^3.0.1",
     "mysql2": "^3.12.0",
+    "node-cron": "^3.0.3",
     "sql-formatter": "^15.4.9",
     "sql-template-strings": "^2.2.2",
     "sqlstring": "^2.3.3",
+    "ts-data-object": "^1.0.3",
+    "tsc-alias": "^1.8.10",
     "uuid": "^11.0.5",
     "winston": "^3.17.0"
   },
@@ -26,6 +31,7 @@
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.2",
     "@types/node": "^22.10.2",
+    "@types/node-cron": "^3.0.11",
     "nodemon": "^3.1.9",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
@@ -33,6 +39,7 @@
   "scripts": {
     "start": "node dist/main.js",
     "build": "tsc -p .",
+    "clean-path": "tsc-alias",
     "dev": "nodemon --watch \"src/**/*.ts\" --exec \"tsx\" ./main.ts"
   }
 }

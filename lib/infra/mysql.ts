@@ -1,7 +1,13 @@
 import { Express } from "express";
-import { createPool, Pool, PoolConnection } from "mysql2/promise";
+import {
+  createPool,
+  Pool,
+  QueryResult,
+  RowDataPacket,
+} from "mysql2/promise";
 import { format } from "sql-formatter";
 import initLogger from "@src/logger";
+import { SQLStatement } from "sql-template-strings";
 
 const logger = initLogger("error");
 
@@ -57,9 +63,10 @@ class DB {
     }
   }
 
-  public async withConnection<T>(
-    callback: (connection: PoolConnection) => Promise<T>
-  ): Promise<T> {
+  private async executeQuery<T extends QueryResult>(
+    statement: SQLStatement,
+    isTransactionRequired = false
+  ) {
     if (!DB.connectionPool) {
       throw new Error(
         "Connection pool is not initialized. Call initApp first."
@@ -67,19 +74,46 @@ class DB {
     }
 
     const connection = await DB.connectionPool.getConnection();
-
     try {
-      const result = await callback(connection);
-      await connection.commit();
-      return result;
+      if (isTransactionRequired) {
+        await connection.beginTransaction();
+      }
+
+      const [rows] = await connection.query<T>(statement);
+
+      if (isTransactionRequired) {
+        await connection.commit();
+      }
+
+      return rows;
     } catch (error) {
-      await connection.rollback();
+      if (isTransactionRequired) {
+        await connection.rollback();
+      }
       logger.error(format(connection.format((error as any).sql ?? "")));
       logger.error(error);
       throw error;
     } finally {
       connection.release();
     }
+  }
+
+  public cursor() {
+    return {
+      fetchAll: async (
+        statement: SQLStatement,
+        isTransactionRequired = false
+      ) => {
+        return this.executeQuery<RowDataPacket[]>(statement, isTransactionRequired);
+      },
+      fetchOne: async (statement: SQLStatement, isTransactionRequired = false) => {
+        const result = await this.executeQuery<RowDataPacket[]>(statement, isTransactionRequired);
+        return result[0] ?? null;
+      },
+      execute: async (statement: SQLStatement, isTransactionRequired = false) => {
+        await this.executeQuery(statement, isTransactionRequired)
+      }
+    };
   }
 }
 

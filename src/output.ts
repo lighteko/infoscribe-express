@@ -1,4 +1,4 @@
-import { ClassConstructor, plainToClass } from "class-transformer";
+import { ClassConstructor, plainToClass } from "ts-data-object";
 import { Response } from "express";
 
 export function send(
