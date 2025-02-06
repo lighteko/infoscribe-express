@@ -8,7 +8,7 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
-EXPOSE 3000
+EXPOSE 8000
 
 RUN yarn build
 
