@@ -1,21 +1,19 @@
 import { Router } from "express";
 import {
-  CreateProviderController,
   CreateSubscriptionController,
   GetAllProvidersController,
-  GetProviderController,
+  ProviderController,
 } from "@provider/controller/controller";
 
 const router = Router();
 
-const getProviderController = new GetProviderController();
+const providerController = new ProviderController();
 const getAllProvidersController = new GetAllProvidersController();
-const createProviderController = new CreateProviderController();
 const createSubscriptionController = new CreateSubscriptionController();
 
-router.get("/", getProviderController.get);
+router.get("/", providerController.get);
 router.get("/all", getAllProvidersController.get);
-router.post("/", createProviderController.post);
+router.post("/", providerController.post);
 router.post("/subscribe", createSubscriptionController.post);
 
 export default router;
