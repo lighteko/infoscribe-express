@@ -1,11 +1,14 @@
+import EventBridge from "@lib/infra/bridge";
 import { ProviderDAO } from "@provider/dao/dao";
 import { CreateProviderDTO, CreateSubscriptionDTO } from "@provider/dto/dto";
 
 export class ProviderService {
   dao: ProviderDAO;
+  bridge: EventBridge;
 
   constructor() {
     this.dao = new ProviderDAO();
+    this.bridge = new EventBridge();
   }
 
   async getAllProviders() {
@@ -17,7 +20,6 @@ export class ProviderService {
   }
 
   async createProvider(inputData: CreateProviderDTO) {
-    // TODO: creat scheduler
     this.dao.createProvider(inputData);
   }
 
