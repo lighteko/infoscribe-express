@@ -10,6 +10,8 @@ export class BaseConfig {
   static AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY || "";
   static AWS_SECRET_KEY = process.env.AWS_SECRET_KEY || "";
   static AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME || "";
+  static AWS_EVENT_BUS_NAME = process.env.AWS_EVENT_BUS_NAME || "";
+  static AWS_SQS_ARN = process.env.AWS_SQS_ARN || "";
 
   static MYSQL_HOST = process.env.MYSQL_HOST || "db host";
   static MYSQL_USER = process.env.MYSQL_USER || "db user";
@@ -17,8 +19,6 @@ export class BaseConfig {
   static MYSQL_DB = process.env.MYSQL_DB || "db database";
   static MYSQL_PORT = process.env.MYSQL_PORT || "db port";
   static MYSQL_POOL_SIZE = parseInt(process.env.MYSQL_POOL_SIZE || "5", 10);
-
-  static NEWSLETTER_SERVER_URL = process.env.NEWSLETTER_SERVER_URL || "";
 
   constructor(app: Express) {
     BaseConfig.initApp(app);
@@ -36,7 +36,8 @@ export class BaseConfig {
       AWS_ACCESS_KEY: this.AWS_ACCESS_KEY,
       AWS_SECRET_KEY: this.AWS_SECRET_KEY,
       AWS_BUCKET_NAME: this.AWS_BUCKET_NAME,
-      NEWSLETTER_SERVER_URL: this.NEWSLETTER_SERVER_URL,
+      AWS_EVENT_BUS_NAME: this.AWS_EVENT_BUS_NAME,
+      AWS_SQS_ARN: this.AWS_SQS_ARN,
     });
 
     console.log("App configuration initialized.");

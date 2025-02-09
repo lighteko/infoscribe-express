@@ -46,11 +46,11 @@ export class LetterDAO {
   async getLetter(letterId: string) {
     const query = SQL`
       SELECT 
-        LETTER_ID as letterId,
-        PROVIDER_ID as providerId,
-        TITLE as title,
-        S3_PATH as s3Path,
-        CREA_DT as createdDate
+        LETTER_ID AS letterId,
+        PROVIDER_ID AS providerId,
+        TITLE AS title,
+        S3_PATH AS s3Path,
+        CREA_DT AS createdDate
       FROM INSC_LETTER_L
       WHERE LETTER_ID = ${letterId}
     `;

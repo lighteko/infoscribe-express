@@ -9,7 +9,7 @@ import {
   GetProviderResponseDTO,
 } from "@provider/dto/dto";
 
-export class GetProviderController {
+export class ProviderController {
   service: ProviderService;
 
   constructor() {
@@ -25,6 +25,16 @@ export class GetProviderController {
       }
       const response = await this.service.getProvider(providerId);
       send(res, 200, response, GetProviderResponseDTO);
+    } catch (e: any) {
+      abort(res, 500, String(e));
+    }
+  };
+
+  post = async (req: Request, res: Response) => {
+    try {
+      const serialized = await serialize(CreateProviderDTO, req.body);
+      await this.service.createProvider(serialized);
+      send(res, 201, { message: "Provider created successfully" });
     } catch (e: any) {
       abort(res, 500, String(e));
     }
@@ -48,24 +58,6 @@ export class GetAllProvidersController {
   };
 }
 
-export class CreateProviderController {
-  service: ProviderService;
-
-  constructor() {
-    this.service = new ProviderService();
-  }
-
-  post = async (req: Request, res: Response) => {
-    try {
-      const serialized = await serialize(CreateProviderDTO, req.body);
-      await this.service.createProvider(serialized);
-      send(res, 201, { message: "User created successfully" });
-    } catch (e: any) {
-      abort(res, 500, String(e));
-    }
-  };
-}
-
 export class CreateSubscriptionController {
   service: ProviderService;
 
@@ -77,6 +69,7 @@ export class CreateSubscriptionController {
     try {
       const serialized = await serialize(CreateSubscriptionDTO, req.body);
       await this.service.createSubscription(serialized);
+      send(res, 201, { message: "Subscription created successfully" });
     } catch (e: any) {
       abort(res, 500, String(e));
     }

@@ -1,17 +1,21 @@
 import express, { Request, Response, NextFunction, Application } from "express";
 import { BaseConfig } from "@lib/config";
 import DB from "@lib/infra/mysql";
+import S3 from "@lib/infra/s3";
 import cors from "cors";
 import initLogger from "@src/logger";
 import userRoutes from "@user/routes";
 import providerRoutes from "@provider/routes";
 import letterRoutes from "@letter/routes";
+import EventBridge from "@lib/infra/bridge";
 
 function createApp() {
   const app = express();
 
   new BaseConfig(app);
   DB.initApp(app);
+  S3.initApp(app);
+  EventBridge.initApp(app);
 
   app.use(express.json());
   app.use(cors());
