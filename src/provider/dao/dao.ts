@@ -54,14 +54,16 @@ export class ProviderDAO {
     await cursor.execute(providerQuery);
     await cursor.execute(categoriesQuery);
     await cursor.execute(subscriptionQuery);
+    return providerId;
   }
 
   async createSubscription(inputData: CreateSubscriptionDTO) {
+    const subscriptionId = uuid4().toString();
     const query = SQL`
       INSERT INTO INSC_SBSC_L
         (SUBSC_ID, USER_ID, PROVIDER_ID, CREA_DT)
       VALUES (
-        ${uuid4().toString()},
+        ${subscriptionId},
         ${inputData.userId},
         ${inputData.providerId},
         CURRENT_TIMESTAMP
@@ -70,18 +72,19 @@ export class ProviderDAO {
 
     const cursor = this.db.cursor();
     await cursor.execute(query);
+    return subscriptionId;
   }
 
   async getAllProviders() {
     const query = SQL`
       SELECT 
-        p.PROVIDER_ID as providerId,
-        p.USER_ID as userId,
-        p.title as title,
-        p.SENDING_DAY as sendingDay,
-        p.LOCALE as locale,
+        p.PROVIDER_ID AS providerId,
+        p.USER_ID AS userId,
+        p.title AS title,
+        p.SENDING_DAY AS sendingDay,
+        p.LOCALE AS locale,
         JSON_ARRAYAGG(c.NAME) AS categories, 
-        p.CREA_DT as createdDate
+        p.CREA_DT AS createdDate
       FROM INSC_PVDR_L p
       LEFT JOIN INSC_PV_CT_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
       LEFT JOIN INSC_CTGY_M c ON c.CATEGORY_ID = map.CATEGORY_ID
@@ -97,13 +100,13 @@ export class ProviderDAO {
   async getProvider(providerId: string) {
     const query = SQL`
       SELECT 
-        p.PROVIDER_ID as providerId,
-        p.USER_ID as userId,
-        p.title as title,
-        p.SENDING_DAY as sendingDay,
-        p.LOCALE as locale,
+        p.PROVIDER_ID AS providerId,
+        p.USER_ID AS userId,
+        p.title AS title,
+        p.SENDING_DAY AS sendingDay,
+        p.LOCALE AS locale,
         JSON_ARRAYAGG(c.NAME) AS categories, 
-        p.CREA_DT as createdDate
+        p.CREA_DT AS createdDate
       FROM INSC_PVDR_L p
       LEFT JOIN INSC_PV_CT_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
       LEFT JOIN INSC_CTGY_M c ON c.CATEGORY_ID = map.CATEGORY_ID
@@ -125,5 +128,29 @@ export class ProviderDAO {
 
     const cursor = this.db.cursor();
     await cursor.execute(query);
+  }
+
+  async getSubscriberCount(providerId: string) {
+    const query = SQL`
+      SELECT COUNT(*)
+      FROM INSC_PV_CT_MAP_L
+      WHERE PROVIDER_ID = ${providerId}
+    `;
+
+    const cursor = this.db.cursor();
+    const res = await cursor.fetchOne(query);
+    return res as unknown as number;
+  }
+
+  async getSubscription(subscriptionId: string) {
+    const query = SQL`
+      SELECT *
+      FROM INSC_SBSC_L
+      WHERE SUBSC_ID = ${subscriptionId}
+    `;
+
+    const cursor = this.db.cursor();
+    const row = await cursor.fetchOne(query);
+    return row;
   }
 }
