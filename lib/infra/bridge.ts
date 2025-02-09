@@ -47,8 +47,13 @@ class EventBridge {
   }
 
   public static initApp(app: Express): void {
-    const { AWS_REGION, AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_EVENT_BUS_NAME, AWS_SQS_ARN } =
-      app.get("config");
+    const {
+      AWS_REGION,
+      AWS_ACCESS_KEY,
+      AWS_SECRET_KEY,
+      AWS_EVENT_BUS_NAME,
+      AWS_SQS_ARN,
+    } = app.get("config");
     EventBridge.config.AWS_REGION = AWS_REGION;
     EventBridge.config.AWS_ACCESS_KEY = AWS_ACCESS_KEY;
     EventBridge.config.AWS_SECRET_KEY = AWS_SECRET_KEY;
@@ -151,7 +156,7 @@ class EventBridge {
         },
       ],
     };
-    
+
     await this.client.send(new PutEventsCommand(params));
   }
 }
