@@ -30,11 +30,11 @@ export class UserDAO {
   async getUser(userId: string) {
     const query = SQL`
       SELECT
-        USER_ID as userId,
-        USERNAME as username,
-        FIRST_NM as firstName,
-        LAST_NM as lastName,
-        EMAIL as email
+        USER_ID AS userId,
+        USERNAME AS username,
+        FIRST_NM AS firstName,
+        LAST_NM AS lastName,
+        EMAIL AS email
       FROM INSC_USER_L
       WHERE USER_ID = ${userId}
     `;
