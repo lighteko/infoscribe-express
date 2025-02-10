@@ -19,14 +19,15 @@ export class EventService {
   async publishProviderRoutine(inputData: ProviderRoutineData) {
     const { providerId, categories, locale, sendingDay } = inputData;
 
-    this.bridge.putRule(`${providerId}-collect`, "", "ENABLED", {
+    this.bridge.putRule(`${providerId}-collect`, "0 0 */2 * * ?", "ENABLED", { // triggered every two days
       providerId,
       categories,
       locale,
     });
-    this.bridge.putRule(`${providerId}-build`, "", "ENABLED", {
+    this.bridge.putRule(`${providerId}-build`, `0 0 0 ? * ${sendingDay} *`, "ENABLED", { // triggered every sendingDay
       providerId,
-      sendingDay,
+      categories,
+      locale,
     });
   }
 
