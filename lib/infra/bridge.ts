@@ -22,7 +22,7 @@ interface EventBridgeConfig {
   AWS_ACCESS_KEY: string;
   AWS_SECRET_KEY: string;
   AWS_EVENT_BUS_NAME: string;
-  AWS_SQS_ARN: string;
+  AWS_LAMBDA_ARN: string;
 }
 
 class EventBridge {
@@ -31,7 +31,7 @@ class EventBridge {
     AWS_ACCESS_KEY: "",
     AWS_SECRET_KEY: "",
     AWS_EVENT_BUS_NAME: "",
-    AWS_SQS_ARN: "",
+    AWS_LAMBDA_ARN: "",
   };
 
   private client: EventBridgeClient;
@@ -52,13 +52,13 @@ class EventBridge {
       AWS_ACCESS_KEY,
       AWS_SECRET_KEY,
       AWS_EVENT_BUS_NAME,
-      AWS_SQS_ARN,
+      AWS_LAMBDA_ARN,
     } = app.get("config");
     EventBridge.config.AWS_REGION = AWS_REGION;
     EventBridge.config.AWS_ACCESS_KEY = AWS_ACCESS_KEY;
     EventBridge.config.AWS_SECRET_KEY = AWS_SECRET_KEY;
     EventBridge.config.AWS_EVENT_BUS_NAME = AWS_EVENT_BUS_NAME;
-    EventBridge.config.AWS_SQS_ARN = AWS_SQS_ARN;
+    EventBridge.config.AWS_LAMBDA_ARN = AWS_LAMBDA_ARN;
   }
 
   public async putRule(
@@ -107,7 +107,7 @@ class EventBridge {
         Targets: [
           {
             Id: targetId,
-            Arn: EventBridge.config.AWS_SQS_ARN,
+            Arn: EventBridge.config.AWS_LAMBDA_ARN,
             Input: JSON.stringify(payload),
           },
         ],
