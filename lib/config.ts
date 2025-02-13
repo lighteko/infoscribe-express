@@ -11,7 +11,7 @@ export class BaseConfig {
   static AWS_SECRET_KEY = process.env.AWS_SECRET_KEY || "";
   static AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME || "";
   static AWS_EVENT_BUS_NAME = process.env.AWS_EVENT_BUS_NAME || "";
-  static AWS_SQS_ARN = process.env.AWS_SQS_ARN || "";
+  static AWS_LAMBDA_ARN = process.env.AWS_LAMBDA_ARN || "";
 
   static MYSQL_HOST = process.env.MYSQL_HOST || "db host";
   static MYSQL_USER = process.env.MYSQL_USER || "db user";
@@ -37,7 +37,7 @@ export class BaseConfig {
       AWS_SECRET_KEY: this.AWS_SECRET_KEY,
       AWS_BUCKET_NAME: this.AWS_BUCKET_NAME,
       AWS_EVENT_BUS_NAME: this.AWS_EVENT_BUS_NAME,
-      AWS_SQS_ARN: this.AWS_SQS_ARN,
+      AWS_LAMBDA_ARN: this.AWS_LAMBDA_ARN,
     });
 
     console.log("App configuration initialized.");
