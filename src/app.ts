@@ -8,6 +8,7 @@ import userRoutes from "@user/routes";
 import providerRoutes from "@provider/routes";
 import letterRoutes from "@letter/routes";
 import EventBridge from "@lib/infra/bridge";
+import SES from "@lib/infra/ses";
 
 function createApp() {
   const app = express();
@@ -15,7 +16,8 @@ function createApp() {
   new BaseConfig(app);
   DB.initApp(app);
   S3.initApp(app);
-  EventBridge.initApp(app);
+  EventBridge.initApp(app)
+  SES.initApp(app)
 
   app.use(express.json());
   app.use(cors());
