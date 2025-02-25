@@ -25,3 +25,16 @@ export class CreateDispatchDTO {
   @IsOptional()
   stage!: DispatchStage;
 }
+
+@DataClass()
+export class DispatchLetterDTO {
+  providerId!: string;
+
+  title!: string;
+  s3Path!: string;
+  letterId!: string;
+  userId!: string;
+
+  @IsOptional()
+  stage!: DispatchStage;
+}
