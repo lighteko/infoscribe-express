@@ -1,23 +1,26 @@
 import { LetterDAO } from "@letter/dao/dao";
-import { CreateDispatchDTO, CreateLetterDTO } from "@letter/dto/dto";
+import { DispatchLetterDTO } from "@letter/dto/dto";
+import SES from "@lib/infra/ses";
 
 export class LetterService {
   dao: LetterDAO;
+  ses: SES;
 
   constructor() {
     this.dao = new LetterDAO();
+    this.ses = new SES();
   }
 
   async getLetter(letterId: string) {
     return this.dao.getLetter(letterId);
   }
 
-  async createLetter(inputData: CreateLetterDTO) {
-    this.dao.createLetter(inputData);
-  }
+  async dispatchLetter(inputData: DispatchLetterDTO) {
+    const { letterId, userId, providerId, title, s3Path, stage } = inputData;
 
-  async sendLetter(inputData: CreateDispatchDTO) {
-    this.dao.createDispatch(inputData);
+
+    await this.dao.createLetter({ providerId, title, s3Path });
+    await this.dao.createDispatch({ letterId, userId, stage });
   }
 
   async deleteDispatch(dispatchId: string) {

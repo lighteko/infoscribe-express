@@ -1,4 +1,4 @@
-export enum DispatchStatus {
+export enum DispatchStage {
   PENDING,
   SENT,
   FAILED,

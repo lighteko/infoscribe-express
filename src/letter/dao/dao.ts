@@ -1,6 +1,6 @@
 import DB from "@lib/infra/mysql";
 import SQL from "sql-template-strings";
-import { CreateDispatchDTO, CreateLetterDTO } from "@letter/dto/dto";
+import { CreateLetterDTO, CreateDispatchDTO } from "@letter/dto/dto";
 import { v4 as uuid4 } from "uuid";
 
 export class LetterDAO {
@@ -29,12 +29,12 @@ export class LetterDAO {
   async createDispatch(inputData: CreateDispatchDTO) {
     const query = SQL`
       INSERT INTO INSC_LETTER_DISPATCH_L
-        (DISPATCH_ID, LETTER_ID, USER_ID, STATUS, SENT_DT)
+        (DISPATCH_ID, LETTER_ID, USER_ID, STAGE, SENT_DT)
       VALUES (
         ${uuid4().toString()},
         ${inputData.letterId},
         ${inputData.userId},
-        ${inputData.status},
+        ${inputData.stage},
         CURRENT_TIMESTAMP
       )
     `;

@@ -1,4 +1,4 @@
-import { DispatchStatus } from "@src/common/enums";
+import { DispatchStage } from "@src/common/enums";
 import { DataClass, IsOptional } from "ts-data-object";
 
 @DataClass()
@@ -23,5 +23,18 @@ export class CreateDispatchDTO {
   userId!: string;
 
   @IsOptional()
-  status!: DispatchStatus;
+  stage!: DispatchStage;
+}
+
+@DataClass()
+export class DispatchLetterDTO {
+  providerId!: string;
+
+  title!: string;
+  s3Path!: string;
+  letterId!: string;
+  userId!: string;
+
+  @IsOptional()
+  stage!: DispatchStage;
 }
