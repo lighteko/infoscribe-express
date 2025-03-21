@@ -16,8 +16,8 @@ function createApp() {
   new BaseConfig(app);
   DB.initApp(app);
   S3.initApp(app);
-  EventBridge.initApp(app)
-  SES.initApp(app)
+  EventBridge.initApp(app);
+  SES.initApp(app);
 
   app.use(express.json());
   app.use(cors());
