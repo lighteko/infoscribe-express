@@ -41,6 +41,7 @@ jobs:
 
           working-directory: /home/ubuntu/infoscribe
           command: |
+                  docker-compose pull server
                   docker-compose stop server
                   docker-compose rm -f server
                   docker-compose -f docker-compose.yaml up -d server
