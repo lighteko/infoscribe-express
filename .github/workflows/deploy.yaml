@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true 
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -39,9 +39,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           instance-ids: ${{ secrets.INSTANCE_ID }}
 
-          working-directory: /home/ubuntu/infoscribe
+          working-directory: /home/ec2-user/infoscribe
           command: |
-                  docker-compose pull server
-                  docker-compose stop server
-                  docker-compose rm -f server
-                  docker-compose -f docker-compose.yaml up -d server
+            docker-compose pull server
+            docker-compose stop server
+            docker-compose rm -f server
+            docker-compose up -d server
+            docker image prune -f
