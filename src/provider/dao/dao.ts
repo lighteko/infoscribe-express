@@ -12,7 +12,7 @@ export class ProviderDAO {
   async createProvider(inputData: CreateProviderDTO) {
     const providerId = uuid4().toString();
     const providerQuery = SQL`
-      INSERT INTO INSC_PVDR_L
+      INSERT INTO INSC_PROVIDER_L
         (PROVIDER_ID, USER_ID, TITLE, SENDING_DAY, LOCALE, CREA_DT)
       VALUES (
         ${providerId},
@@ -25,7 +25,7 @@ export class ProviderDAO {
     `;
 
     const categoriesQuery = SQL`
-      INSERT INTO INSC_PV_CT_MAP_L
+      INSERT INTO INSC_PROVIDER_CATEGORY_MAP_L
         (MAP_ID, PROVIDER_ID, CATEGORY_ID, CREA_DT)
       VALUES
     `;
@@ -40,8 +40,8 @@ export class ProviderDAO {
     }
 
     const subscriptionQuery = SQL`
-      INSERT INTO INSC_SBSC_L
-        (SUBSC_ID, USER_ID, PROVIDER_ID, CREA_DT)
+      INSERT INTO INSC_SUBSCRIPTION_L
+        (SUBSCRIPTION_ID, USER_ID, PROVIDER_ID, CREA_DT)
       VALUES (
         ${uuid4().toString()},
         ${inputData.userId},
@@ -60,8 +60,8 @@ export class ProviderDAO {
   async createSubscription(inputData: CreateSubscriptionDTO) {
     const subscriptionId = uuid4().toString();
     const query = SQL`
-      INSERT INTO INSC_SBSC_L
-        (SUBSC_ID, USER_ID, PROVIDER_ID, CREA_DT)
+      INSERT INTO INSC_SUBSCRIPTION_L
+        (SUBSCRIPTION_ID, USER_ID, PROVIDER_ID, CREA_DT)
       VALUES (
         ${subscriptionId},
         ${inputData.userId},
@@ -85,9 +85,9 @@ export class ProviderDAO {
         p.LOCALE AS locale,
         JSON_ARRAYAGG(c.NAME) AS categories, 
         p.CREA_DT AS createdDate
-      FROM INSC_PVDR_L p
-      LEFT JOIN INSC_PV_CT_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
-      LEFT JOIN INSC_CTGY_M c ON c.CATEGORY_ID = map.CATEGORY_ID
+      FROM INSC_PROVIDER_L p
+      LEFT JOIN INSC_PROVIDER_CATEGORY_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
+      LEFT JOIN INSC_CATEGORY_M c ON c.CATEGORY_ID = map.CATEGORY_ID
       GROUP BY p.PROVIDER_ID
     `;
 
@@ -107,9 +107,9 @@ export class ProviderDAO {
         p.LOCALE AS locale,
         JSON_ARRAYAGG(c.NAME) AS categories, 
         p.CREA_DT AS createdDate
-      FROM INSC_PVDR_L p
-      LEFT JOIN INSC_PV_CT_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
-      LEFT JOIN INSC_CTGY_M c ON c.CATEGORY_ID = map.CATEGORY_ID
+      FROM INSC_PROVIDER_L p
+      LEFT JOIN INSC_PROVIDER_CATEGORY_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
+      LEFT JOIN INSC_CATEGORY_M c ON c.CATEGORY_ID = map.CATEGORY_ID
       WHERE p.PROVIDER_ID = ${providerId}
       GROUP BY p.PROVIDER_ID
     `;
@@ -122,8 +122,8 @@ export class ProviderDAO {
 
   async deleteSubscription(subscriptionId: string) {
     const query = SQL`
-      DELETE FROM INSC_SBSC_L
-      WHERE SUBSC_ID = ${subscriptionId}
+      DELETE FROM INSC_SUBSCRIPTION_L
+      WHERE SUBSCRIPTION_ID = ${subscriptionId}
     `;
 
     const cursor = this.db.cursor();
@@ -133,7 +133,7 @@ export class ProviderDAO {
   async getSubscriberCount(providerId: string) {
     const query = SQL`
       SELECT COUNT(*)
-      FROM INSC_PV_CT_MAP_L
+      FROM INSC_PROVIDER_CATEGORY_MAP_L
       WHERE PROVIDER_ID = ${providerId}
     `;
 
@@ -145,8 +145,8 @@ export class ProviderDAO {
   async getSubscription(subscriptionId: string) {
     const query = SQL`
       SELECT *
-      FROM INSC_SBSC_L
-      WHERE SUBSC_ID = ${subscriptionId}
+      FROM INSC_SUBSCRIPTION_L
+      WHERE SUBSCRIPTION_ID = ${subscriptionId}
     `;
 
     const cursor = this.db.cursor();

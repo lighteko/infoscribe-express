@@ -35,4 +35,14 @@ export class SendLetterController {
   constructor() {
     this.service = new LetterService();
   }
+
+  post = async (req: Request, res: Response) => {
+    try {
+      const serialized = await serialize(DispatchLetterDTO, req.body);
+      await this.service.dispatchLetter(serialized);
+      send(res, 200, { message: "Letter dispatched successfully" });
+    } catch (e: any) {
+      abort(res, 500, String(e));
+    }
+  };
 }

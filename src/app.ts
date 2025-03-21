@@ -7,8 +7,10 @@ import initLogger from "@src/logger";
 import userRoutes from "@user/routes";
 import providerRoutes from "@provider/routes";
 import letterRoutes from "@letter/routes";
+import authRoutes from "@auth/routes";
 import EventBridge from "@lib/infra/bridge";
 import SES from "@lib/infra/ses";
+import { authenticate } from "@src/middlewares/authentication";
 
 function createApp() {
   const app = express();
@@ -16,8 +18,8 @@ function createApp() {
   new BaseConfig(app);
   DB.initApp(app);
   S3.initApp(app);
-  EventBridge.initApp(app)
-  SES.initApp(app)
+  EventBridge.initApp(app);
+  SES.initApp(app);
 
   app.use(express.json());
   app.use(cors());
@@ -55,15 +57,15 @@ function createApp() {
     });
   });
 
-  registerRoutes(app);
+  // Public routes
+  app.use("/auth", authRoutes);
+
+  // Protected routes
+  app.use("/user", authenticate, userRoutes);
+  app.use("/provider", authenticate, providerRoutes);
+  app.use("/letter", authenticate, letterRoutes);
 
   return app;
-}
-
-function registerRoutes(app: Application) {
-  app.use("/user", userRoutes);
-  app.use("/provider", providerRoutes);
-  app.use("/letter", letterRoutes);
 }
 
 export default createApp;
