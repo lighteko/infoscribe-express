@@ -1,13 +1,7 @@
 import { AuthService } from "@auth/service/service";
 import { Request, Response } from "express";
 import { abort, send } from "@src/output";
-import {
-  LoginRequestDTO,
-  LoginResponseDTO,
-  RefreshTokenRequestDTO,
-  RefreshTokenResponseDTO,
-} from "@auth/dto/dto";
-import { serialize } from "ts-data-object";
+import { LoginResponseDTO, RefreshTokenResponseDTO } from "@auth/dto/dto";
 
 export class LoginController {
   service: AuthService;
@@ -18,8 +12,13 @@ export class LoginController {
 
   post = async (req: Request, res: Response) => {
     try {
-      const serialized = await serialize(LoginRequestDTO, req.body);
-      const response = await this.service.login(serialized);
+      const basicToken = req.headers.authorization;
+      if (!basicToken || basicToken.split(" ")[0] !== "Basic") {
+        abort(res, 401, "Authentication required");
+        return;
+      }
+
+      const response = await this.service.login(basicToken.split(" ")[1]);
       send(res, 200, response, LoginResponseDTO);
     } catch (e: any) {
       abort(res, 401, String(e));
@@ -36,8 +35,15 @@ export class RefreshTokenController {
 
   post = async (req: Request, res: Response) => {
     try {
-      const serialized = await serialize(RefreshTokenRequestDTO, req.body);
-      const response = await this.service.refreshToken(serialized);
+      const refreshToken = req.cookies.refreshToken;
+      if (!refreshToken || refreshToken.split(" ")[0] !== "Bearer") {
+        abort(res, 401, "Refresh token is required");
+        return;
+      }
+
+      const response = await this.service.reissueToken(
+        refreshToken.split(" ")[1]
+      );
       send(res, 200, response, RefreshTokenResponseDTO);
     } catch (e: any) {
       abort(res, 401, String(e));
@@ -55,17 +61,17 @@ export class LogoutController {
   post = async (req: Request, res: Response) => {
     try {
       const userId = (req as any).user?.userId;
-      const refreshToken = req.body.refreshToken;
+      const refreshToken = req.cookies.refreshToken;
       
       if (!userId || !refreshToken) {
         abort(res, 400, "User ID and refresh token are required");
         return;
       }
-      
+
       await this.service.logout(userId, refreshToken);
       send(res, 200, { message: "Logged out successfully" });
     } catch (e: any) {
       abort(res, 500, String(e));
     }
   };
-} 
+}

@@ -39,7 +39,7 @@ export class AuthDAO {
         CURRENT_TIMESTAMP
       )
     `;
-    
+
     const cursor = this.db.cursor();
     await cursor.execute(query);
   }
@@ -61,7 +61,11 @@ export class AuthDAO {
     return row;
   }
 
-  async replaceRefreshToken(userId: string, oldToken: string, newToken: string) {
+  async replaceRefreshToken(
+    userId: string,
+    oldToken: string,
+    newToken: string
+  ) {
     const query = SQL`
       UPDATE INSC_REFRESH_TOKEN_L
       SET TOKEN = ${newToken},
@@ -84,4 +88,4 @@ export class AuthDAO {
     const cursor = this.db.cursor();
     await cursor.execute(query);
   }
-} 
+}

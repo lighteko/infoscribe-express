@@ -5,6 +5,7 @@ import S3 from "@lib/infra/s3";
 import EventBridge from "@lib/infra/bridge";
 import SES from "@lib/infra/ses";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import initLogger from "@src/logger";
 import userRoutes from "@user/routes";
 import providerRoutes from "@provider/routes";
@@ -14,7 +15,7 @@ import { authenticate } from "@src/middlewares/authentication";
 
 function createApp() {
   const app = express();
-  
+
   new BaseConfig(app);
   DB.initApp(app);
   S3.initApp(app);
@@ -22,7 +23,13 @@ function createApp() {
   SES.initApp(app);
 
   app.use(express.json());
-  app.use(cors());
+  app.use(cookieParser());
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN || true,
+      credentials: true,
+    })
+  );
   const logger = initLogger("debug");
 
   app.use((req: Request, _res: Response, next: NextFunction) => {
