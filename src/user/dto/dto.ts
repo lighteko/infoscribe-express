@@ -10,17 +10,6 @@ export class GetUserResponseDTO {
 }
 
 @DataClass()
-export class CreateUserRequestDTO {
-  username!: string;
-  firstName!: string;
-  lastName!: string;
-  email!: string;
-
-  @Exclude()
-  password!: string;
-}
-
-@DataClass()
 export class UpdateUserRequestDTO {
   userId!: string;
   username!: string;
