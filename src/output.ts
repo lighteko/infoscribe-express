@@ -25,6 +25,39 @@ export function send(
   }
 }
 
+export function sendTokens(
+  res: Response,
+  cookies: { accessToken: string; refreshToken: string }
+) {
+  res.cookie("accessToken", cookies.accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 15,
+  });
+  res.cookie("refreshToken", cookies.refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+  });
+}
+
+export function clearTokens(res: Response) {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 15,
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+  });
+}
+
 export function abort(res: Response, code: number, description: string) {
   res.status(code).send({ message: description });
 }

@@ -1,7 +1,6 @@
 import { AuthService } from "@auth/service/service";
 import { Request, Response } from "express";
-import { abort, send } from "@src/output";
-import { LoginResponseDTO, RefreshTokenResponseDTO } from "@auth/dto/dto";
+import { abort, clearTokens, sendTokens } from "@src/output";
 
 export class LoginController {
   service: AuthService;
@@ -18,8 +17,11 @@ export class LoginController {
         return;
       }
 
-      const response = await this.service.login(basicToken.split(" ")[1]);
-      send(res, 200, response, LoginResponseDTO);
+      const { accessToken, refreshToken } = await this.service.login(
+        basicToken.split(" ")[1]
+      );
+
+      sendTokens(res, { accessToken, refreshToken });
     } catch (e: any) {
       abort(res, 401, String(e));
     }
@@ -44,7 +46,7 @@ export class RefreshTokenController {
       const response = await this.service.reissueToken(
         refreshToken.split(" ")[1]
       );
-      send(res, 200, response, RefreshTokenResponseDTO);
+      sendTokens(res, response);
     } catch (e: any) {
       abort(res, 401, String(e));
     }
@@ -62,14 +64,13 @@ export class LogoutController {
     try {
       const userId = (req as any).user?.userId;
       const refreshToken = req.cookies.refreshToken;
-      
+
       if (!userId || !refreshToken) {
         abort(res, 400, "User ID and refresh token are required");
         return;
       }
-
       await this.service.logout(userId, refreshToken);
-      send(res, 200, { message: "Logged out successfully" });
+      clearTokens(res);
     } catch (e: any) {
       abort(res, 500, String(e));
     }
