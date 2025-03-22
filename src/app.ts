@@ -22,6 +22,7 @@ function createApp() {
   EventBridge.initApp(app);
   SES.initApp(app);
 
+  app.set("trust proxy", true);
   app.use(express.json());
   app.use(cookieParser());
   app.use(
