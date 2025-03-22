@@ -1,18 +1,11 @@
 import { Router } from "express";
-import {
-  CreateUserController,
-  GetUserController,
-  UpdateUserController,
-} from "@user/controller/controller";
+import { UserController } from "@user/controller/controller";
 
 const router = Router();
 
-const getUserController = new GetUserController();
-const createUserController = new CreateUserController();
-const updateUserController = new UpdateUserController();
+const userController = new UserController();
 
-router.get("/", getUserController.get);
-router.post("/", createUserController.post);
-router.put("/", updateUserController.put);
+router.get("/", userController.get);
+router.put("/", userController.put);
 
 export default router;

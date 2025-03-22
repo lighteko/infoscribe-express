@@ -1,5 +1,5 @@
 import { AuthDAO } from "@auth/dao/dao";
-import { TokenPayloadDTO } from "@auth/dto/dto";
+import { SignUpRequestDTO, TokenPayloadDTO } from "@auth/dto/dto";
 import * as jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
@@ -24,6 +24,16 @@ export class AuthService {
     const decoded = Buffer.from(basicToken, "base64").toString("utf8");
     const [email, password] = decoded.split(":");
     return { email, password };
+  }
+
+  async signup(inputData: SignUpRequestDTO) {
+    const user = await this.dao.getUserByEmail(inputData.email);
+    if (user) {
+      throw new Error("User already exists");
+    }
+    const hashedPassword = await bcrypt.hash(inputData.password, 10);
+    inputData.password = hashedPassword;
+    await this.dao.createUser(inputData);
   }
 
   async login(basicToken: string) {

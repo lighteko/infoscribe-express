@@ -1,6 +1,30 @@
 import { AuthService } from "@auth/service/service";
 import { Request, Response } from "express";
-import { abort, clearTokens, sendTokens } from "@src/output";
+import { abort, clearTokens, send, sendTokens } from "@src/output";
+
+export class SignupController {
+  service: AuthService;
+
+  constructor() {
+    this.service = new AuthService();
+  }
+
+  post = async (req: Request, res: Response) => {
+    try {
+      const { email, password, firstName, lastName, username } = req.body;
+      await this.service.signup({
+        email,
+        password,
+        firstName,
+        lastName,
+        username,
+      });
+      send(res, 201, { message: "User created successfully" });
+    } catch (e: any) {
+      abort(res, 400, String(e));
+    }
+  };
+}
 
 export class LoginController {
   service: AuthService;
