@@ -8,7 +8,7 @@ export class AuthDAO {
     this.db = new DB();
   }
 
-  async getUserByUsername(username: string) {
+  async getUserByEmail(email: string) {
     const query = SQL`
       SELECT
         USER_ID AS userId,
@@ -18,7 +18,7 @@ export class AuthDAO {
         EMAIL AS email,
         PASSWRD AS password
       FROM INSC_USER_L
-      WHERE USERNAME = ${username}
+      WHERE EMAIL = ${email}
     `;
 
     const cursor = this.db.cursor();
