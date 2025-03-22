@@ -1,21 +1,4 @@
-import { DataClass, Exclude } from "ts-data-object";
-
-@DataClass()
-export class LoginResponseDTO {
-  userId!: string;
-  username!: string;
-  accessToken!: string;
-  refreshToken!: string;
-  firstName!: string;
-  lastName!: string;
-  email!: string;
-}
-
-@DataClass()
-export class RefreshTokenResponseDTO {
-  accessToken!: string;
-  refreshToken!: string;
-}
+import { DataClass } from "ts-data-object";
 
 @DataClass()
 export class TokenPayloadDTO {
