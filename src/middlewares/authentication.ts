@@ -34,7 +34,7 @@ export const authenticate = (
 
     (req as any).user = {
       userId: decoded.userId,
-      username: decoded.username,
+      email: decoded.email,
     };
 
     next();

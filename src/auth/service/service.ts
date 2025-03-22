@@ -22,27 +22,27 @@ export class AuthService {
 
   parseBasicToken(basicToken: string) {
     const decoded = Buffer.from(basicToken, "base64").toString("utf8");
-    const [username, password] = decoded.split(":");
-    return { username, password };
+    const [email, password] = decoded.split(":");
+    return { email, password };
   }
 
   async login(basicToken: string) {
-    const { username, password } = this.parseBasicToken(basicToken);
-    const user = await this.dao.getUserByUsername(username);
+    const { email, password } = this.parseBasicToken(basicToken);
+    const user = await this.dao.getUserByEmail(email);
 
     if (!user) {
-      throw new Error("Invalid username or password");
+      throw new Error("Invalid email or password");
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new Error("Invalid username or password");
+      throw new Error("Invalid email or password");
     }
 
     const payload: TokenPayloadDTO = {
       userId: user.userId,
-      username: user.username,
+      email: user.email,
     };
 
     const accessToken = this.generateAccessToken(payload);
@@ -76,12 +76,12 @@ export class AuthService {
 
       const newAccessToken = this.generateAccessToken({
         userId: payload.userId,
-        username: payload.username,
+        email: payload.email,
       });
 
       const newRefreshToken = this.generateRefreshToken({
         userId: payload.userId,
-        username: payload.username,
+        email: payload.email,
       });
 
       await this.dao.replaceRefreshToken(
