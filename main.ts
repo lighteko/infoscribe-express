@@ -1,11 +1,10 @@
 import createApp from "@src/app";
 
-const app = createApp();
+function main() {
+  const EXPRESS_PORT = parseInt(process.env.EXPRESS_PORT || "3000");
 
-async function main() {
-  const EXPRESS_PORT = process.env.EXPRESS_PORT as any as number;
-
-  app.listen(EXPRESS_PORT, '0.0.0.0', () => {
+  const app = createApp();
+  app.listen(EXPRESS_PORT, "0.0.0.0", () => {
     console.log(`\n* Server running on http://127.0.0.1:${EXPRESS_PORT}\n`);
   });
 }

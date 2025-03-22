@@ -1,20 +1,20 @@
-import express, { Request, Response, NextFunction, Application } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { BaseConfig } from "@lib/config";
 import DB from "@lib/infra/mysql";
 import S3 from "@lib/infra/s3";
+import EventBridge from "@lib/infra/bridge";
+import SES from "@lib/infra/ses";
 import cors from "cors";
 import initLogger from "@src/logger";
 import userRoutes from "@user/routes";
 import providerRoutes from "@provider/routes";
 import letterRoutes from "@letter/routes";
 import authRoutes from "@auth/routes";
-import EventBridge from "@lib/infra/bridge";
-import SES from "@lib/infra/ses";
 import { authenticate } from "@src/middlewares/authentication";
 
 function createApp() {
   const app = express();
-
+  
   new BaseConfig(app);
   DB.initApp(app);
   S3.initApp(app);
