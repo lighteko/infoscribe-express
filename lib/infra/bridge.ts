@@ -1,21 +1,5 @@
 import { Express } from "express";
-import {
-  DeleteRuleCommand,
-  DeleteRuleCommandInput,
-  EventBridgeClient,
-  ListRulesCommand,
-  ListTargetsByRuleCommand,
-  ListTargetsByRuleCommandInput,
-  ListTargetsByRuleCommandOutput,
-  PutEventsCommand,
-  PutEventsCommandInput,
-  PutRuleCommand,
-  PutRuleCommandInput,
-  PutTargetsCommand,
-  RemoveTargetsCommand,
-  RemoveTargetsCommandInput,
-  RuleState,
-} from "@aws-sdk/client-eventbridge";
+import * as bridge from "@aws-sdk/client-eventbridge";
 
 interface EventBridgeConfig {
   AWS_REGION: string;
@@ -34,18 +18,6 @@ class EventBridge {
     AWS_LAMBDA_ARN: "",
   };
 
-  private client: EventBridgeClient;
-
-  constructor() {
-    this.client = new EventBridgeClient({
-      region: EventBridge.config.AWS_REGION,
-      credentials: {
-        accessKeyId: EventBridge.config.AWS_ACCESS_KEY,
-        secretAccessKey: EventBridge.config.AWS_SECRET_KEY,
-      },
-    });
-  }
-
   public static initApp(app: Express): void {
     const {
       AWS_REGION,
@@ -61,15 +33,40 @@ class EventBridge {
     EventBridge.config.AWS_LAMBDA_ARN = AWS_LAMBDA_ARN;
   }
 
+  private static initialized = false;
+  private _client: bridge.EventBridgeClient | null = null;
+
+  constructor() {}
+
+  private get client(): bridge.EventBridgeClient {
+    if (!EventBridge.initialized) {
+      throw new Error(
+        "EventBridge not initialized. Call EventBridge.initApp() first"
+      );
+    }
+
+    if (!this._client) {
+      this._client = new bridge.EventBridgeClient({
+        region: EventBridge.config.AWS_REGION,
+        credentials: {
+          accessKeyId: EventBridge.config.AWS_ACCESS_KEY,
+          secretAccessKey: EventBridge.config.AWS_SECRET_KEY,
+        },
+      });
+    }
+
+    return this._client;
+  }
+
   public async putRule(
     name: string,
     cron: string | null,
-    state: RuleState,
+    state: bridge.RuleState,
     payload: object,
     eventPattern: object | null = null
   ): Promise<void> {
     const existingRule = await this.client.send(
-      new ListRulesCommand({
+      new bridge.ListRulesCommand({
         EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
       })
     );
@@ -80,7 +77,7 @@ class EventBridge {
       return;
     }
 
-    const ruleParams: PutRuleCommandInput = {
+    const ruleParams: bridge.PutRuleCommandInput = {
       Name: name,
       State: state,
       EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
@@ -96,12 +93,12 @@ class EventBridge {
       );
     }
 
-    await this.client.send(new PutRuleCommand(ruleParams));
+    await this.client.send(new bridge.PutRuleCommand(ruleParams));
 
     const targetId = `target-${name}`;
 
     await this.client.send(
-      new PutTargetsCommand({
+      new bridge.PutTargetsCommand({
         Rule: name,
         EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
         Targets: [
@@ -116,37 +113,38 @@ class EventBridge {
   }
 
   public async deleteRule(name: string): Promise<void> {
-    const listTargetsParams: ListTargetsByRuleCommandInput = {
+    const listTargetsParams: bridge.ListTargetsByRuleCommandInput = {
       Rule: name,
       EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
     };
 
-    const targetData: ListTargetsByRuleCommandOutput = await this.client.send(
-      new ListTargetsByRuleCommand(listTargetsParams)
-    );
+    const targetData: bridge.ListTargetsByRuleCommandOutput =
+      await this.client.send(
+        new bridge.ListTargetsByRuleCommand(listTargetsParams)
+      );
 
     const targetIds = targetData.Targets?.map((target) => target.Id) || [];
 
     if (targetIds.length > 0) {
-      const removeParams: RemoveTargetsCommandInput = {
+      const removeParams: bridge.RemoveTargetsCommandInput = {
         Rule: name,
         EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
         Ids: targetIds as string[],
       };
 
-      await this.client.send(new RemoveTargetsCommand(removeParams));
+      await this.client.send(new bridge.RemoveTargetsCommand(removeParams));
     }
 
-    const params: DeleteRuleCommandInput = {
+    const params: bridge.DeleteRuleCommandInput = {
       Name: name,
       EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
     };
 
-    await this.client.send(new DeleteRuleCommand(params));
+    await this.client.send(new bridge.DeleteRuleCommand(params));
   }
 
   public async sendEvent(detailType: string, detail: object): Promise<void> {
-    const params: PutEventsCommandInput = {
+    const params: bridge.PutEventsCommandInput = {
       Entries: [
         {
           EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
@@ -157,7 +155,7 @@ class EventBridge {
       ],
     };
 
-    await this.client.send(new PutEventsCommand(params));
+    await this.client.send(new bridge.PutEventsCommand(params));
   }
 }
 

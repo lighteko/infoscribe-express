@@ -18,19 +18,7 @@ interface S3Config {
 
 class S3 {
   bucket: string;
-  client: S3Client;
-
-  constructor() {
-    this.bucket = S3.config.AWS_BUCKET_NAME;
-    this.client = new S3Client({
-      region: S3.config.AWS_REGION,
-      credentials: {
-        accessKeyId: S3.config.AWS_ACCESS_KEY,
-        secretAccessKey: S3.config.AWS_SECRET_KEY,
-      },
-    });
-  }
-
+  
   private static config: S3Config = {
     AWS_REGION: "",
     AWS_ACCESS_KEY: "",
@@ -45,6 +33,31 @@ class S3 {
     S3.config.AWS_ACCESS_KEY = AWS_ACCESS_KEY;
     S3.config.AWS_SECRET_KEY = AWS_SECRET_KEY;
     S3.config.AWS_BUCKET_NAME = AWS_BUCKET_NAME;
+  }
+
+  private static initialized = false;
+  private _client: S3Client | null = null;
+
+  constructor() {
+    this.bucket = S3.config.AWS_BUCKET_NAME;
+  }
+
+  private get client(): S3Client {
+    if (!S3.initialized) {
+      throw new Error("S3 not initialized. Call S3.initApp() first");
+    }
+
+    if (!this._client) {
+      this._client = new S3Client({
+        region: S3.config.AWS_REGION,
+        credentials: {
+          accessKeyId: S3.config.AWS_ACCESS_KEY,
+          secretAccessKey: S3.config.AWS_SECRET_KEY,
+        },
+      });
+    }
+
+    return this._client;
   }
 
   public async uploadFile(

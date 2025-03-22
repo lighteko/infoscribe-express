@@ -43,8 +43,8 @@ export class ProviderService {
     const res = await this.dao.getSubscription(subscriptionId);
     const subscribers = await this.dao.getSubscriberCount(res.providerId);
     if (subscribers === 1) {
-      this.event.killProviderRoutine(res.providerId);
+      await this.event.killProviderRoutine(res.providerId);
     }
-    this.dao.deleteSubscription(subscriptionId);
+    await this.dao.deleteSubscription(subscriptionId);
   }
 }

@@ -9,18 +9,6 @@ interface SESConfig {
 }
 
 class SES {
-  client: SESClient;
-
-  constructor() {
-    this.client = new SESClient({
-      region: SES.config.AWS_REGION,
-      credentials: {
-        accessKeyId: SES.config.AWS_ACCESS_KEY,
-        secretAccessKey: SES.config.AWS_SECRET_KEY,
-      },
-    });
-  }
-
   private static config: SESConfig = {
     AWS_REGION: "",
     AWS_ACCESS_KEY: "",
@@ -35,6 +23,29 @@ class SES {
     SES.config.AWS_ACCESS_KEY = AWS_ACCESS_KEY;
     SES.config.AWS_SECRET_KEY = AWS_SECRET_KEY;
     SES.config.SES_FROM_ADDRESS = SES_FROM_ADDRESS;
+  }
+
+  private static initialized = false;
+  private _client: SESClient | null = null;
+
+  constructor() {}
+
+  private get client(): SESClient {
+    if (!SES.initialized) {
+      throw new Error("SES not initialized. Call SES.initApp() first");
+    }
+
+    if (!this._client) {
+      this._client = new SESClient({
+        region: SES.config.AWS_REGION,
+        credentials: {
+          accessKeyId: SES.config.AWS_ACCESS_KEY,
+          secretAccessKey: SES.config.AWS_SECRET_KEY,
+        },
+      });
+    }
+
+    return this._client;
   }
 
   public async sendEmail(
