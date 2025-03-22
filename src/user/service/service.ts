@@ -3,7 +3,7 @@ import { UpdateUserRequestDTO } from "@user/dto/dto";
 
 export class UserService {
   dao: UserDAO;
-  
+
   constructor() {
     this.dao = new UserDAO();
   }
