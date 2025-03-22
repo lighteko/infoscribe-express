@@ -1,12 +1,7 @@
 import { AuthDAO } from "@auth/dao/dao";
-import {
-  LoginRequestDTO,
-  RefreshTokenRequestDTO,
-  TokenPayloadDTO,
-} from "@auth/dto/dto";
+import { TokenPayloadDTO } from "@auth/dto/dto";
 import * as jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { v4 as uuid4 } from "uuid";
 
 export class AuthService {
   dao: AuthDAO;
@@ -25,17 +20,21 @@ export class AuthService {
     this.refreshTokenExpiry = process.env.JWT_REFRESH_EXPIRY || "7d";
   }
 
-  async login(inputData: LoginRequestDTO) {
-    const user = await this.dao.getUserByUsername(inputData.username);
+  parseBasicToken(basicToken: string) {
+    const decoded = Buffer.from(basicToken, "base64").toString("utf8");
+    const [username, password] = decoded.split(":");
+    return { username, password };
+  }
+
+  async login(basicToken: string) {
+    const { username, password } = this.parseBasicToken(basicToken);
+    const user = await this.dao.getUserByUsername(username);
 
     if (!user) {
       throw new Error("Invalid username or password");
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      inputData.password,
-      user.password
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       throw new Error("Invalid username or password");
@@ -59,25 +58,22 @@ export class AuthService {
     };
   }
 
-  async refreshToken(inputData: RefreshTokenRequestDTO) {
+  async reissueToken(refreshToken: string) {
     try {
-      // Verify refresh token
       const payload = jwt.verify(
-        inputData.refreshToken,
+        refreshToken,
         this.refreshTokenSecret
       ) as TokenPayloadDTO;
 
-      // Check if refresh token exists in database
       const storedToken = await this.dao.getRefreshToken(
         payload.userId,
-        inputData.refreshToken
+        refreshToken
       );
 
       if (!storedToken) {
         throw new Error("Invalid refresh token");
       }
 
-      // Generate new tokens
       const newAccessToken = this.generateAccessToken({
         userId: payload.userId,
         username: payload.username,
@@ -88,10 +84,9 @@ export class AuthService {
         username: payload.username,
       });
 
-      // Replace old refresh token with new one
       await this.dao.replaceRefreshToken(
         payload.userId,
-        inputData.refreshToken,
+        refreshToken,
         newRefreshToken
       );
 

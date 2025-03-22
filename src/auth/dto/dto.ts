@@ -1,14 +1,6 @@
 import { DataClass, Exclude } from "ts-data-object";
 
 @DataClass()
-export class LoginRequestDTO {
-  username!: string;
-
-  @Exclude()
-  password!: string;
-}
-
-@DataClass()
 export class LoginResponseDTO {
   userId!: string;
   username!: string;
@@ -17,11 +9,6 @@ export class LoginResponseDTO {
   firstName!: string;
   lastName!: string;
   email!: string;
-}
-
-@DataClass()
-export class RefreshTokenRequestDTO {
-  refreshToken!: string;
 }
 
 @DataClass()
