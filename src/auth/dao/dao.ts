@@ -35,14 +35,12 @@ export class AuthDAO {
         FIRST_NM AS firstName,
         LAST_NM AS lastName,
         EMAIL AS email,
-        PASSWRD AS password
+        PASSWRD AS pwd
       FROM INSC_USER_L
       WHERE EMAIL = ${email}
     `;
-
     const cursor = this.db.cursor();
     const row = await cursor.fetchOne(query);
-
     return row;
   }
 

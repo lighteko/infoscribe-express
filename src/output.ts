@@ -12,7 +12,7 @@ export function send(
   } else {
     try {
       const classInstance = plainToClass(dto, data);
-      validate(classInstance as object).then((errors) => {
+      validate(classInstance as object).then((errors: any) => {
         if (errors.length > 0) {
           throw new Error("Validation failed");
         } else {
@@ -27,35 +27,40 @@ export function send(
 
 export function sendTokens(
   res: Response,
-  cookies: { accessToken: string; refreshToken: string }
+  cookies: { accessToken: string; refreshToken: string },
+  message: object
 ) {
+  const isProd = process.env.NODE_ENV === "production";
   res.cookie("accessToken", cookies.accessToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 1000 * 60 * 15,
   });
   res.cookie("refreshToken", cookies.refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 1000 * 60 * 60 * 24 * 7,
   });
+  res.status(201).send({ data: message });
 }
 
 export function clearTokens(res: Response) {
+  const isProd = process.env.NODE_ENV === "production";
   res.clearCookie("accessToken", {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 1000 * 60 * 15,
   });
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 1000 * 60 * 60 * 24 * 7,
   });
+  res.status(200).send({ data: { message: "Log out succeeded" } });
 }
 
 export function abort(res: Response, code: number, description: string) {
