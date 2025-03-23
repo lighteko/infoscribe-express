@@ -45,7 +45,7 @@ export class LoginController {
         basicToken.split(" ")[1]
       );
 
-      sendTokens(res, { accessToken, refreshToken });
+      sendTokens(res, { accessToken, refreshToken }, { message: "Log in success" });
     } catch (e: any) {
       abort(res, 401, String(e));
     }
@@ -70,7 +70,7 @@ export class RefreshTokenController {
       const response = await this.service.reissueToken(
         refreshToken.split(" ")[1]
       );
-      sendTokens(res, response);
+      sendTokens(res, response, { message: "Token reissued successfully" });
     } catch (e: any) {
       abort(res, 401, String(e));
     }

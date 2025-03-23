@@ -1,10 +1,5 @@
 import { Express } from "express";
-import {
-  createPool,
-  Pool,
-  QueryResult,
-  RowDataPacket,
-} from "mysql2/promise";
+import { createPool, Pool, QueryResult, RowDataPacket } from "mysql2/promise";
 import { format } from "sql-formatter";
 import initLogger from "@src/logger";
 import { SQLStatement } from "sql-template-strings";
@@ -104,15 +99,27 @@ class DB {
         statement: SQLStatement,
         isTransactionRequired = false
       ) => {
-        return this.executeQuery<RowDataPacket[]>(statement, isTransactionRequired);
+        return await this.executeQuery<RowDataPacket[]>(
+          statement,
+          isTransactionRequired
+        );
       },
-      fetchOne: async (statement: SQLStatement, isTransactionRequired = false) => {
-        const result = await this.executeQuery<RowDataPacket[]>(statement, isTransactionRequired);
+      fetchOne: async (
+        statement: SQLStatement,
+        isTransactionRequired = false
+      ) => {
+        const result = await this.executeQuery<RowDataPacket[]>(
+          statement,
+          isTransactionRequired
+        );
         return result[0] ?? null;
       },
-      execute: async (statement: SQLStatement, isTransactionRequired = false) => {
-        await this.executeQuery(statement, isTransactionRequired)
-      }
+      execute: async (
+        statement: SQLStatement,
+        isTransactionRequired = false
+      ) => {
+        await this.executeQuery(statement, isTransactionRequired);
+      },
     };
   }
 }

@@ -1,6 +1,7 @@
 import { AuthDAO } from "@auth/dao/dao";
 import { SignUpRequestDTO, TokenPayloadDTO } from "@auth/dto/dto";
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import type { SignOptions } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 export class AuthService {
@@ -41,10 +42,10 @@ export class AuthService {
     const user = await this.dao.getUserByEmail(email);
 
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw new Error("No user found");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.pwd);
 
     if (!isPasswordValid) {
       throw new Error("Invalid email or password");
@@ -112,13 +113,13 @@ export class AuthService {
   generateAccessToken(payload: TokenPayloadDTO): string {
     return jwt.sign(payload as object, this.accessTokenSecret, {
       expiresIn: this.accessTokenExpiry,
-    } as jwt.SignOptions) as string;
+    } as SignOptions) as string;
   }
 
   generateRefreshToken(payload: TokenPayloadDTO): string {
     return jwt.sign(payload as object, this.refreshTokenSecret, {
       expiresIn: this.refreshTokenExpiry,
-    } as jwt.SignOptions) as string;
+    } as SignOptions) as string;
   }
 
   verifyAccessToken(token: string): TokenPayloadDTO {
