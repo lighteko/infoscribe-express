@@ -1,30 +1,22 @@
 import { AuthDAO } from "@auth/dao/dao";
-import { SignUpRequestDTO, TokenPayloadDTO } from "@auth/dto/dto";
-import jwt from "jsonwebtoken";
-import type { SignOptions } from "jsonwebtoken";
+import {
+  EmailVerificationDTO,
+  SignUpRequestDTO,
+  TokenPayloadDTO,
+} from "@auth/dto/dto";
 import bcrypt from "bcrypt";
+import Tokens from "@lib/infra/tokens";
+import SES from "@lib/infra/ses";
 
 export class AuthService {
   dao: AuthDAO;
-  private accessTokenSecret: string;
-  private refreshTokenSecret: string;
-  private accessTokenExpiry: string;
-  private refreshTokenExpiry: string;
+  tokens: Tokens;
+  ses: SES;
 
   constructor() {
     this.dao = new AuthDAO();
-    this.accessTokenSecret =
-      process.env.JWT_ACCESS_SECRET || "access_secret_key";
-    this.refreshTokenSecret =
-      process.env.JWT_REFRESH_SECRET || "refresh_secret_key";
-    this.accessTokenExpiry = process.env.JWT_ACCESS_EXPIRY || "15m";
-    this.refreshTokenExpiry = process.env.JWT_REFRESH_EXPIRY || "7d";
-  }
-
-  parseBasicToken(basicToken: string) {
-    const decoded = Buffer.from(basicToken, "base64").toString("utf8");
-    const [email, password] = decoded.split(":");
-    return { email, password };
+    this.tokens = new Tokens();
+    this.ses = new SES();
   }
 
   async signup(inputData: SignUpRequestDTO) {
@@ -34,11 +26,17 @@ export class AuthService {
     }
     const hashedPassword = await bcrypt.hash(inputData.password, 10);
     inputData.password = hashedPassword;
-    await this.dao.createUser(inputData);
+    const userId = await this.dao.createUser(inputData);
+    const emailDTO: EmailVerificationDTO = {
+      userId,
+      username: inputData.username,
+      email: inputData.email,
+    };
+    await this.sendEmailVerification(emailDTO);
   }
 
   async login(basicToken: string) {
-    const { email, password } = this.parseBasicToken(basicToken);
+    const { email, password } = this.tokens.parseBasicToken(basicToken);
     const user = await this.dao.getUserByEmail(email);
 
     if (!user) {
@@ -56,8 +54,8 @@ export class AuthService {
       email: user.email,
     };
 
-    const accessToken = this.generateAccessToken(payload);
-    const refreshToken = this.generateRefreshToken(payload);
+    const accessToken = this.tokens.generateAccessToken(payload);
+    const refreshToken = this.tokens.generateRefreshToken(payload);
 
     // Store refresh token in database
     await this.dao.saveRefreshToken(user.userId, refreshToken);
@@ -71,10 +69,7 @@ export class AuthService {
 
   async reissueToken(refreshToken: string) {
     try {
-      const payload = jwt.verify(
-        refreshToken,
-        this.refreshTokenSecret
-      ) as TokenPayloadDTO;
+      const payload = this.tokens.verifyRefreshToken(refreshToken);
 
       const storedToken = await this.dao.getRefreshToken(
         payload.userId,
@@ -85,12 +80,12 @@ export class AuthService {
         throw new Error("Invalid refresh token");
       }
 
-      const newAccessToken = this.generateAccessToken({
+      const newAccessToken = this.tokens.generateAccessToken({
         userId: payload.userId,
         email: payload.email,
       });
 
-      const newRefreshToken = this.generateRefreshToken({
+      const newRefreshToken = this.tokens.generateRefreshToken({
         userId: payload.userId,
         email: payload.email,
       });
@@ -110,23 +105,43 @@ export class AuthService {
     }
   }
 
-  generateAccessToken(payload: TokenPayloadDTO): string {
-    return jwt.sign(payload as object, this.accessTokenSecret, {
-      expiresIn: this.accessTokenExpiry,
-    } as SignOptions) as string;
-  }
-
-  generateRefreshToken(payload: TokenPayloadDTO): string {
-    return jwt.sign(payload as object, this.refreshTokenSecret, {
-      expiresIn: this.refreshTokenExpiry,
-    } as SignOptions) as string;
-  }
-
-  verifyAccessToken(token: string): TokenPayloadDTO {
-    return jwt.verify(token, this.accessTokenSecret) as TokenPayloadDTO;
-  }
-
   async logout(userId: string, refreshToken: string): Promise<void> {
     await this.dao.deleteRefreshToken(userId, refreshToken);
+  }
+
+  async sendEmailVerification(inputData: EmailVerificationDTO) {
+    const newToken = this.tokens.generateEmailVerificationToken();
+    const token = await this.dao.getEmailVerificationToken(inputData.userId);
+    if (token) {
+      await this.dao.replaceEmailVerificationToken(token.tokenId, newToken);
+    } else {
+      await this.dao.saveEmailVerificationToken(inputData.userId, newToken);
+    }
+    const template = this.ses.loadTemplate("verify-email");
+    const filled = template.replaceAll(
+      "{{VERIFY_LINK}}",
+      `https://api.infoscribe.me/verify?token=${newToken}`
+    );
+    await this.ses.sendEmail(inputData.email, "Verify Your Email", filled);
+  }
+
+  async handleEmailVerification(token: string) {
+    const user = await this.dao.getUserByEmailToken(token);
+    await this.dao.activateUser(user.userId);
+
+    const payload: TokenPayloadDTO = {
+      userId: user.userId,
+      email: user.email,
+    };
+
+    const accessToken = this.tokens.generateAccessToken(payload);
+    const refreshToken = this.tokens.generateRefreshToken(payload);
+
+    await this.dao.saveRefreshToken(user.userId, refreshToken);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }

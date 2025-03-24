@@ -18,3 +18,10 @@ export class SignUpRequestDTO {
   @Exclude()
   password!: string;
 }
+
+@DataClass()
+export class EmailVerificationDTO {
+  userId!: string;
+  username!: string;
+  email!: string;
+}

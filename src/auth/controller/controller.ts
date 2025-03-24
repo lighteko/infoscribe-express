@@ -45,7 +45,11 @@ export class LoginController {
         basicToken.split(" ")[1]
       );
 
-      sendTokens(res, { accessToken, refreshToken }, { message: "Log in success" });
+      sendTokens(
+        res,
+        { accessToken, refreshToken },
+        { message: "Log in success" }
+      );
     } catch (e: any) {
       abort(res, 401, String(e));
     }
@@ -98,5 +102,24 @@ export class LogoutController {
     } catch (e: any) {
       abort(res, 500, String(e));
     }
+  };
+}
+
+export class EmailVerificationController {
+  service: AuthService;
+
+  constructor() {
+    this.service = new AuthService();
+  }
+
+  get = async (req: Request, res: Response) => {
+    const token = req.params.token;
+    const response = await this.service.handleEmailVerification(token);
+    sendTokens(
+      res,
+      response,
+      { message: "Token reissued successfully" },
+      "https://infoscribe.me/dashboard"
+    );
   };
 }

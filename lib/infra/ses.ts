@@ -1,5 +1,7 @@
 import { Express } from "express";
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import fs from "fs";
+import path from "path";
 
 interface SESConfig {
   AWS_REGION: string;
@@ -65,6 +67,11 @@ class SES {
     const command = new SendEmailCommand(params);
     await this.client.send(command);
   }
+
+  public loadTemplate(filename: string) {
+    const filePath = path.join(__dirname, "../../", "public/templates", `${filename}.html`);
+    return fs.readFileSync(filePath, "utf-8");
+  };
 }
 
 export default SES;
