@@ -12,6 +12,7 @@ import providerRoutes from "@provider/routes";
 import letterRoutes from "@letter/routes";
 import authRoutes from "@auth/routes";
 import { authenticate } from "@src/middlewares/authentication";
+import Tokens from "@lib/infra/tokens";
 
 function createApp() {
   const app = express();
@@ -21,6 +22,7 @@ function createApp() {
   S3.initApp(app);
   EventBridge.initApp(app);
   SES.initApp(app);
+  Tokens.initApp(app);
 
   app.set("trust proxy", true);
   app.use(express.json());
