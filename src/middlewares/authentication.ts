@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { AuthService } from "@auth/service/service";
 import { abort } from "@src/output";
+import Tokens from "@lib/infra/tokens";
 
 export const authenticate = (
   req: Request,
@@ -27,10 +27,10 @@ export const authenticate = (
     return abort(res, 401, "Authentication required");
   }
 
-  const authService = new AuthService();
+  const tokens = new Tokens();
 
   try {
-    const decoded = authService.verifyAccessToken(token);
+    const decoded = tokens.verifyAccessToken(token);
 
     (req as any).user = {
       userId: decoded.userId,
