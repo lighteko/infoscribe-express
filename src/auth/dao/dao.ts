@@ -143,7 +143,7 @@ export class AuthDAO {
         TOKEN_ID as tokenId,
         USER_ID as userId,
         TOKEN as token,
-        CREA_DT as createdAt
+        CREA_DT as createdAt,
         UPDT_DT as updatedAt
       FROM INSC_EMAIL_TOKEN_L
       WHERE USER_ID = ${userId}
