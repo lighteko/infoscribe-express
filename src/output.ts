@@ -66,5 +66,5 @@ export function clearTokens(res: Response) {
 }
 
 export function abort(res: Response, code: number, description: string) {
-  res.status(code).send({ message: description });
+  res.status(code).send({ data: { message: description } });
 }
