@@ -15,8 +15,8 @@ export class AuthService {
 
   constructor() {
     this.dao = new AuthDAO();
-    this.tokens = new Tokens();
-    this.ses = new SES();
+    this.tokens = Tokens.getInstance();
+    this.ses = SES.getInstance();
   }
 
   async signup(inputData: SignUpRequestDTO) {
