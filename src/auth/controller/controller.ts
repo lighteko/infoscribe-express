@@ -113,7 +113,7 @@ export class EmailVerificationController {
   }
 
   get = async (req: Request, res: Response) => {
-    const token = req.params.token;
+    const token = req.query.token as any as string;
     const response = await this.service.handleEmailVerification(token);
     sendTokens(
       res,
