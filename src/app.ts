@@ -68,12 +68,12 @@ function createApp() {
   });
 
   // Public routes
-  app.use("/auth", authRoutes);
+  app.use("/auth", authRoutes());
 
   // Protected routes
-  app.use("/user", authenticate, userRoutes);
-  app.use("/provider", authenticate, providerRoutes);
-  app.use("/letter", authenticate, letterRoutes);
+  app.use("/user", authenticate, userRoutes());
+  app.use("/provider", authenticate, providerRoutes());
+  app.use("/letter", authenticate, letterRoutes());
 
   return app;
 }
