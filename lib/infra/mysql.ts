@@ -16,7 +16,7 @@ interface DBConfig {
 }
 
 class DB {
-  constructor() {}
+  private static instance: DB | null = null;
   private static config: DBConfig = {
     MYSQL_HOST: "127.0.0.1",
     MYSQL_PORT: 3306,
@@ -25,7 +25,6 @@ class DB {
     MYSQL_DB: "template",
     MYSQL_POOL_SIZE: 10,
   };
-
   private static connectionPool: Pool | null = null;
 
   public static initApp(app: Express): void {
@@ -37,6 +36,7 @@ class DB {
       MYSQL_PORT,
       MYSQL_POOL_SIZE,
     } = app.get("config");
+
     DB.config.MYSQL_HOST = MYSQL_HOST;
     DB.config.MYSQL_PORT = MYSQL_PORT;
     DB.config.MYSQL_USER = MYSQL_USER;
@@ -56,7 +56,25 @@ class DB {
         queueLimit: 0,
       });
     }
+
+    DB.initialized = true;
   }
+
+  private static initialized = false;
+
+  public static getInstance(): DB {
+    if (!DB.initialized) {
+      throw new Error("DB not initialized. Call DB.initApp() first");
+    }
+
+    if (!DB.instance) {
+      DB.instance = new DB();
+    }
+
+    return DB.instance;
+  }
+
+  private constructor() {}
 
   private async executeQuery<T extends QueryResult>(
     statement: SQLStatement,

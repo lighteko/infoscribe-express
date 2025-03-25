@@ -5,7 +5,7 @@ import { UpdateUserRequestDTO } from "@user/dto/dto";
 export class UserDAO {
   db: DB;
   constructor() {
-    this.db = new DB();
+    this.db = DB.getInstance();
   }
 
   async getUser(userId: string) {

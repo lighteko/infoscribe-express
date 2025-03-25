@@ -6,7 +6,7 @@ import { v4 as uuid4 } from "uuid";
 export class LetterDAO {
   db: DB;
   constructor() {
-    this.db = new DB();
+    this.db = DB.getInstance();
   }
 
   async createLetter(inputData: CreateLetterDTO) {

@@ -27,9 +27,8 @@ export const authenticate = (
     return abort(res, 401, "Authentication required");
   }
 
-  const tokens = new Tokens();
-
   try {
+    const tokens = Tokens.getInstance();
     const decoded = tokens.verifyAccessToken(token);
 
     (req as any).user = {

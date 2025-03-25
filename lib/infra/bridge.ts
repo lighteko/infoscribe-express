@@ -10,6 +10,7 @@ interface EventBridgeConfig {
 }
 
 class EventBridge {
+  private static instance: EventBridge | null = null;
   private static config: EventBridgeConfig = {
     AWS_REGION: "",
     AWS_ACCESS_KEY: "",
@@ -17,6 +18,8 @@ class EventBridge {
     AWS_EVENT_BUS_NAME: "",
     AWS_LAMBDA_ARN: "",
   };
+  private static initialized = false;
+  private _client: bridge.EventBridgeClient | null = null;
 
   public static initApp(app: Express): void {
     const {
@@ -26,17 +29,31 @@ class EventBridge {
       AWS_EVENT_BUS_NAME,
       AWS_LAMBDA_ARN,
     } = app.get("config");
+
     EventBridge.config.AWS_REGION = AWS_REGION;
     EventBridge.config.AWS_ACCESS_KEY = AWS_ACCESS_KEY;
     EventBridge.config.AWS_SECRET_KEY = AWS_SECRET_KEY;
     EventBridge.config.AWS_EVENT_BUS_NAME = AWS_EVENT_BUS_NAME;
     EventBridge.config.AWS_LAMBDA_ARN = AWS_LAMBDA_ARN;
+
+    EventBridge.initialized = true;
   }
 
-  private static initialized = false;
-  private _client: bridge.EventBridgeClient | null = null;
+  public static getInstance(): EventBridge {
+    if (!EventBridge.initialized) {
+      throw new Error(
+        "EventBridge not initialized. Call EventBridge.initApp() first"
+      );
+    }
 
-  constructor() {}
+    if (!EventBridge.instance) {
+      EventBridge.instance = new EventBridge();
+    }
+
+    return EventBridge.instance;
+  }
+
+  private constructor() {}
 
   private get client(): bridge.EventBridgeClient {
     if (!EventBridge.initialized) {

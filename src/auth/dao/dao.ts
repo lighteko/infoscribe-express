@@ -6,7 +6,7 @@ import { SignUpRequestDTO } from "../dto/dto";
 export class AuthDAO {
   db: DB;
   constructor() {
-    this.db = new DB();
+    this.db = DB.getInstance();
   }
 
   async createUser(inputData: SignUpRequestDTO) {

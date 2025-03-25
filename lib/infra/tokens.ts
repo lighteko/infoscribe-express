@@ -23,14 +23,14 @@ interface TokensConfig {
 }
 
 class Tokens {
+  private static instance: Tokens | null = null;
   private static config: TokensConfig = {
-    JWT_ACCESS_SECRET: "access_secret_key",
-    JWT_REFRESH_SECRET: "refresh_secret_key",
-    JWT_ACCESS_EXPIRY: "15m",
-    JWT_REFRESH_EXPIRY: "7d",
-    EMAIL_VERIFICATION_SECRET: "email_verification_secret_key",
+    JWT_ACCESS_SECRET: "",
+    JWT_REFRESH_SECRET: "",
+    JWT_ACCESS_EXPIRY: "",
+    JWT_REFRESH_EXPIRY: "",
+    EMAIL_VERIFICATION_SECRET: "",
   };
-
   private static initialized = false;
 
   public static initApp(app: Express): void {
@@ -56,13 +56,21 @@ class Tokens {
     Tokens.initialized = true;
   }
 
-  constructor() {
+  public static getInstance(): Tokens {
     if (!Tokens.initialized) {
-      console.warn(
-        "Tokens not initialized with app config. Using default values."
+      throw new Error(
+        "Tokens not initialized with app config. Call Tokens.initApp() first."
       );
     }
+
+    if (!Tokens.instance) {
+      Tokens.instance = new Tokens();
+    }
+
+    return Tokens.instance;
   }
+
+  private constructor() {}
 
   public generateAccessToken(payload: TokenPayloadDTO): string {
     return jwt.sign(payload as object, Tokens.config.JWT_ACCESS_SECRET, {

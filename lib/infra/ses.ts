@@ -2,6 +2,7 @@ import { Express } from "express";
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
 interface SESConfig {
   AWS_REGION: string;
@@ -11,26 +12,40 @@ interface SESConfig {
 }
 
 class SES {
+  private static instance: SES | null = null;
   private static config: SESConfig = {
     AWS_REGION: "",
     AWS_ACCESS_KEY: "",
     AWS_SECRET_KEY: "",
     SES_FROM_ADDRESS: "",
   };
+  private static initialized = false;
+  private _client: SESClient | null = null;
 
   public static initApp(app: Express): void {
     const { AWS_REGION, AWS_ACCESS_KEY, AWS_SECRET_KEY, SES_FROM_ADDRESS } =
       app.get("config");
+
     SES.config.AWS_REGION = AWS_REGION;
     SES.config.AWS_ACCESS_KEY = AWS_ACCESS_KEY;
     SES.config.AWS_SECRET_KEY = AWS_SECRET_KEY;
     SES.config.SES_FROM_ADDRESS = SES_FROM_ADDRESS;
+
+    SES.initialized = true;
   }
 
-  private static initialized = false;
-  private _client: SESClient | null = null;
+  public static getInstance(): SES {
+    if (!SES.initialized) {
+      throw new Error("SES not initialized. Call SES.initApp() first");
+    }
+    if (!SES.instance) {
+      SES.instance = new SES();
+    }
 
-  constructor() {}
+    return SES.instance;
+  }
+
+  private constructor() {}
 
   private get client(): SESClient {
     if (!SES.initialized) {
@@ -56,7 +71,7 @@ class SES {
     htmlBody: string
   ): Promise<void> {
     const params = {
-      Source: SES.config.SES_FROM_ADDRESS,
+      Source: `'Infoscribe' <${SES.config.SES_FROM_ADDRESS}>`,
       Destination: { ToAddresses: [to] },
       Message: {
         Subject: { Data: subject },
@@ -68,10 +83,14 @@ class SES {
     await this.client.send(command);
   }
 
-  public loadTemplate(filename: string) {
-    const filePath = path.join(__dirname, "../../", "public/templates", `${filename}.html`);
+  public loadTemplate(filename: string): string {
+    const filePath = path.join(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "../../public/templates",
+      `${filename}.html`
+    );
     return fs.readFileSync(filePath, "utf-8");
-  };
+  }
 }
 
 export default SES;
