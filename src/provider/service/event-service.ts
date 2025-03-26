@@ -13,7 +13,7 @@ export class EventService {
   bridge: EventBridge;
 
   constructor() {
-    this.bridge = new EventBridge();
+    this.bridge = EventBridge.getInstance();
   }
 
   async publishProviderRoutine(inputData: ProviderRoutineData) {

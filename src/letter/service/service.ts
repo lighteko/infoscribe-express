@@ -8,7 +8,7 @@ export class LetterService {
 
   constructor() {
     this.dao = new LetterDAO();
-    this.ses = new SES();
+    this.ses = SES.getInstance();
   }
 
   async getLetter(letterId: string) {

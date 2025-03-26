@@ -28,7 +28,8 @@ export function send(
 export function sendTokens(
   res: Response,
   cookies: { accessToken: string; refreshToken: string },
-  message: object
+  message: object,
+  redirect: string | null = null
 ) {
   const isProd = process.env.NODE_ENV === "production";
   res.cookie("accessToken", cookies.accessToken, {
@@ -43,7 +44,8 @@ export function sendTokens(
     sameSite: isProd ? "none" : "lax",
     maxAge: 1000 * 60 * 60 * 24 * 7,
   });
-  res.status(201).send({ data: message });
+  if (!redirect) res.status(201).send({ data: message });
+  else res.redirect(redirect);
 }
 
 export function clearTokens(res: Response) {
@@ -64,5 +66,5 @@ export function clearTokens(res: Response) {
 }
 
 export function abort(res: Response, code: number, description: string) {
-  res.status(code).send({ message: description });
+  res.status(code).send({ data: { message: description } });
 }

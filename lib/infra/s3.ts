@@ -17,36 +17,47 @@ interface S3Config {
 }
 
 class S3 {
-  bucket: string;
-  
+  private static instance: S3 | null = null;
   private static config: S3Config = {
     AWS_REGION: "",
     AWS_ACCESS_KEY: "",
     AWS_SECRET_KEY: "",
     AWS_BUCKET_NAME: "",
   };
+  private static initialized = false;
+  private _client: S3Client | null = null;
+
+  bucket: string;
 
   public static initApp(app: Express): void {
     const { AWS_REGION, AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_BUCKET_NAME } =
       app.get("config");
+
     S3.config.AWS_REGION = AWS_REGION;
     S3.config.AWS_ACCESS_KEY = AWS_ACCESS_KEY;
     S3.config.AWS_SECRET_KEY = AWS_SECRET_KEY;
     S3.config.AWS_BUCKET_NAME = AWS_BUCKET_NAME;
+
+    S3.initialized = true;
   }
 
-  private static initialized = false;
-  private _client: S3Client | null = null;
-
-  constructor() {
-    this.bucket = S3.config.AWS_BUCKET_NAME;
-  }
-
-  private get client(): S3Client {
+  public static getInstance(): S3 {
     if (!S3.initialized) {
       throw new Error("S3 not initialized. Call S3.initApp() first");
     }
 
+    if (!S3.instance) {
+      S3.instance = new S3();
+    }
+
+    return S3.instance;
+  }
+
+  private constructor() {
+    this.bucket = S3.config.AWS_BUCKET_NAME;
+  }
+
+  private get client(): S3Client {
     if (!this._client) {
       this._client = new S3Client({
         region: S3.config.AWS_REGION,
