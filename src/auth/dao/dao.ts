@@ -1,7 +1,7 @@
 import DB from "@lib/infra/mysql";
 import SQL from "sql-template-strings";
 import { v4 as uuid4 } from "uuid";
-import { SignUpRequestDTO } from "../dto/dto";
+import { UpdateUserRequestDTO, SignUpRequestDTO } from "@auth/dto/dto";
 
 export class AuthDAO {
   db: DB;
@@ -28,6 +28,22 @@ export class AuthDAO {
     const cursor = this.db.cursor();
     await cursor.execute(query);
     return userId;
+  }
+
+  async updateUser(inputData: UpdateUserRequestDTO) {
+    const query = SQL`
+      UPDATE INSC_USER_L
+      SET USERNAME = ${inputData.username},
+          FIRST_NM = ${inputData.firstName},
+          LAST_NM = ${inputData.lastName},
+          PASSWRD = ${inputData.password},
+          EMAIL = ${inputData.email},
+          IS_VERIFIED = ${inputData.isVerified}
+      WHERE USER_ID = ${inputData.userId}
+    `;
+
+    const cursor = this.db.cursor();
+    await cursor.execute(query);
   }
 
   async activateUser(userId: string) {
@@ -120,15 +136,16 @@ export class AuthDAO {
     await cursor.execute(query);
   }
 
-  async saveEmailVerificationToken(userId: string, token: string) {
+  async saveEmailToken(userId: string, token: string) {
     const tokenId = uuid4().toString();
     const query = SQL`
       INSERT INTO INSC_EMAIL_TOKEN_L
-        (TOKEN_ID, USER_ID, TOKEN, CREA_DT)
+        (TOKEN_ID, USER_ID, TOKEN, IS_USED, CREA_DT)
       VALUES (
         ${tokenId},
         ${userId},
         ${token},
+        FALSE
         CURRENT_TIMESTAMP
       )
     `;
@@ -137,14 +154,14 @@ export class AuthDAO {
     await cursor.execute(query);
   }
 
-  async getEmailVerificationToken(userId: string) {
+  async getEmailToken(userId: string) {
     const query = SQL`
       SELECT
         TOKEN_ID as tokenId,
         USER_ID as userId,
         TOKEN as token,
+        IS_USED as isUsed,
         CREA_DT as createdAt,
-        UPDT_DT as updatedAt
       FROM INSC_EMAIL_TOKEN_L
       WHERE USER_ID = ${userId}
     `;
@@ -154,12 +171,11 @@ export class AuthDAO {
     return row;
   }
 
-  async replaceEmailVerificationToken(tokenId: string, token: string) {
+  async disableToken(token: string) {
     const query = SQL`
       UPDATE INSC_EMAIL_TOKEN_L
-      SET TOKEN = ${token}, 
-          UPDT_DT = CURRENT_TIMESTAMP
-      WHERE TOKEN_ID = ${tokenId}
+      SET IS_USED = TRUE,
+      WHERE TOKEN = ${token}
     `;
 
     const cursor = this.db.cursor();
@@ -180,6 +196,7 @@ export class AuthDAO {
     JOIN INSC_USER_L u ON t.USER_ID = u.USER_ID
     WHERE t.TOKEN = ${token}
       AND TIMESTAMPDIFF(MINUTE, GREATEST(t.CREA_DT, COALESCE(t.UPDT_DT, t.CREA_DT)), NOW()) <= 10
+      AND NOT t.isUsed
     `;
 
     const cursor = this.db.cursor();

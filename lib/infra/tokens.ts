@@ -19,7 +19,7 @@ interface TokensConfig {
   JWT_REFRESH_SECRET: string;
   JWT_ACCESS_EXPIRY: string;
   JWT_REFRESH_EXPIRY: string;
-  EMAIL_VERIFICATION_SECRET: string;
+  EMAIL_TOKEN_SECRET: string;
 }
 
 class Tokens {
@@ -29,7 +29,7 @@ class Tokens {
     JWT_REFRESH_SECRET: "",
     JWT_ACCESS_EXPIRY: "",
     JWT_REFRESH_EXPIRY: "",
-    EMAIL_VERIFICATION_SECRET: "",
+    EMAIL_TOKEN_SECRET: "",
   };
   private static initialized = false;
 
@@ -39,7 +39,7 @@ class Tokens {
       JWT_REFRESH_SECRET,
       JWT_ACCESS_EXPIRY,
       JWT_REFRESH_EXPIRY,
-      EMAIL_VERIFICATION_SECRET,
+      EMAIL_TOKEN_SECRET,
     } = app.get("config");
 
     Tokens.config.JWT_ACCESS_SECRET =
@@ -50,8 +50,8 @@ class Tokens {
       JWT_ACCESS_EXPIRY || Tokens.config.JWT_ACCESS_EXPIRY;
     Tokens.config.JWT_REFRESH_EXPIRY =
       JWT_REFRESH_EXPIRY || Tokens.config.JWT_REFRESH_EXPIRY;
-    Tokens.config.EMAIL_VERIFICATION_SECRET =
-      EMAIL_VERIFICATION_SECRET || Tokens.config.EMAIL_VERIFICATION_SECRET;
+    Tokens.config.EMAIL_TOKEN_SECRET =
+      EMAIL_TOKEN_SECRET || Tokens.config.EMAIL_TOKEN_SECRET;
 
     Tokens.initialized = true;
   }
@@ -84,7 +84,7 @@ class Tokens {
     } as SignOptions) as string;
   }
 
-  public generateEmailVerificationToken(): string {
+  public generateEmailToken(): string {
     return crypto.randomBytes(32).toString("hex");
   }
 
@@ -110,14 +110,14 @@ class Tokens {
     }
   }
 
-  public verifyEmailVerificationToken(token: string): TokenPayloadDTO {
+  public verifyEmailToken(token: string): TokenPayloadDTO {
     try {
       return jwt.verify(
         token,
-        Tokens.config.EMAIL_VERIFICATION_SECRET
+        Tokens.config.EMAIL_TOKEN_SECRET
       ) as TokenPayloadDTO;
     } catch (error) {
-      throw new Error("Invalid email verification token");
+      throw new Error("Invalid email token");
     }
   }
 

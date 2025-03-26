@@ -1,12 +1,16 @@
 import { AuthDAO } from "@auth/dao/dao";
 import {
   EmailVerificationDTO,
+  PasswordResetRequestDTO,
+  PasswordResetValidationDTO,
   SignUpRequestDTO,
   TokenPayloadDTO,
+  UpdateUserRequestDTO,
 } from "@auth/dto/dto";
 import bcrypt from "bcrypt";
 import Tokens from "@lib/infra/tokens";
 import SES from "@lib/infra/ses";
+import { serialize } from "ts-data-object";
 
 export class AuthService {
   dao: AuthDAO;
@@ -110,17 +114,12 @@ export class AuthService {
   }
 
   async sendEmailVerification(inputData: EmailVerificationDTO) {
-    const newToken = this.tokens.generateEmailVerificationToken();
-    const token = await this.dao.getEmailVerificationToken(inputData.userId);
-    if (token) {
-      await this.dao.replaceEmailVerificationToken(token.tokenId, newToken);
-    } else {
-      await this.dao.saveEmailVerificationToken(inputData.userId, newToken);
-    }
+    const newToken = this.tokens.generateEmailToken();
+    await this.dao.saveEmailToken(inputData.userId, newToken);
     const template = this.ses.loadTemplate("verify-email");
     const filled = template.replaceAll(
       "{{VERIFY_LINK}}",
-      `https://api.infoscribe.me/verify?token=${newToken}`
+      `https://infoscribe.me/auth/verify?token=${newToken}`
     );
     await this.ses.sendEmail(inputData.email, "Verify Your Email", filled);
   }
@@ -128,6 +127,7 @@ export class AuthService {
   async handleEmailVerification(token: string) {
     const user = await this.dao.getUserByEmailToken(token);
     await this.dao.activateUser(user.userId);
+    await this.dao.disableToken(token);
 
     const payload: TokenPayloadDTO = {
       userId: user.userId,
@@ -143,5 +143,31 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async sendPasswordResetEmail(inputData: PasswordResetValidationDTO) {
+    const user = await this.dao.getUserByEmail(inputData.email);
+    if (!user || user.username !== inputData.username)
+      throw new Error("Either the email is wrong or the user does not exist");
+
+    const newToken = this.tokens.generateEmailToken();
+    await this.dao.saveEmailToken(user.userId, newToken);
+
+    const template = this.ses.loadTemplate("reset-password");
+    const filled = template.replaceAll(
+      "{{RESET_LINK}}",
+      `https://infoscribe.me/auth/reset-password?token=${newToken}`
+    );
+    await this.ses.sendEmail(inputData.email, "Reset Your Password", filled);
+  }
+
+  async resetPassword(inputData: PasswordResetRequestDTO) {
+    const user = await this.dao.getUserByEmailToken(inputData.token);
+    const hashedPassword = await bcrypt.hash(inputData.newPassword, 10);
+    user.password = hashedPassword;
+
+    const serialized = await serialize(UpdateUserRequestDTO, user);
+    await this.dao.updateUser(serialized);
+    await this.dao.disableToken(inputData.token);
   }
 }

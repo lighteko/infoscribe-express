@@ -7,7 +7,6 @@ import SES from "@lib/infra/ses";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import initLogger from "@src/logger";
-import userRoutes from "@user/routes";
 import providerRoutes from "@provider/routes";
 import letterRoutes from "@letter/routes";
 import authRoutes from "@auth/routes";
@@ -71,7 +70,6 @@ function createApp() {
   app.use("/auth", authRoutes());
 
   // Protected routes
-  app.use("/user", authenticate, userRoutes());
   app.use("/provider", authenticate, providerRoutes());
   app.use("/letter", authenticate, letterRoutes());
 
