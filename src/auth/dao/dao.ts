@@ -145,7 +145,7 @@ export class AuthDAO {
         ${tokenId},
         ${userId},
         ${token},
-        FALSE
+        FALSE,
         CURRENT_TIMESTAMP
       )
     `;
@@ -174,7 +174,7 @@ export class AuthDAO {
   async disableToken(token: string) {
     const query = SQL`
       UPDATE INSC_EMAIL_TOKEN_L
-      SET IS_USED = TRUE,
+      SET IS_USED = TRUE
       WHERE TOKEN = ${token}
     `;
 
@@ -195,8 +195,8 @@ export class AuthDAO {
     FROM INSC_EMAIL_TOKEN_L t
     JOIN INSC_USER_L u ON t.USER_ID = u.USER_ID
     WHERE t.TOKEN = ${token}
-      AND TIMESTAMPDIFF(MINUTE, GREATEST(t.CREA_DT, COALESCE(t.UPDT_DT, t.CREA_DT)), NOW()) <= 10
-      AND NOT t.isUsed
+      AND TIMESTAMPDIFF(MINUTE, t.CREA_DT, NOW()) <= 10
+      AND NOT t.IS_USED
     `;
 
     const cursor = this.db.cursor();
