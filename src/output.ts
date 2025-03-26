@@ -29,20 +29,21 @@ export function sendTokens(
   res: Response,
   cookies: { accessToken: string; refreshToken: string },
   message: object,
-  redirect: string | null = null
+  redirect: string | null = null,
+  isSessionOnly: boolean = true
 ) {
   const isProd = process.env.NODE_ENV === "production";
   res.cookie("accessToken", cookies.accessToken, {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? "none" : "lax",
-    maxAge: 1000 * 60 * 15,
+    maxAge: isSessionOnly ? undefined : 1000 * 60 * 15,
   });
   res.cookie("refreshToken", cookies.refreshToken, {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? "none" : "lax",
-    maxAge: 1000 * 60 * 60 * 24 * 7,
+    maxAge: isSessionOnly ? undefined : 1000 * 60 * 60 * 24 * 7,
   });
   if (!redirect) res.status(201).send({ data: message });
   else res.redirect(redirect);
@@ -54,13 +55,13 @@ export function clearTokens(res: Response) {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? "none" : "lax",
-    maxAge: 1000 * 60 * 15,
+    path: "/",
   });
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? "none" : "lax",
-    maxAge: 1000 * 60 * 60 * 24 * 7,
+    path: "/",
   });
   res.status(200).send({ data: { message: "Log out succeeded" } });
 }

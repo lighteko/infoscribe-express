@@ -48,7 +48,9 @@ export class LoginController {
       sendTokens(
         res,
         { accessToken, refreshToken },
-        { message: "Log in success" }
+        { message: "Log in success" },
+        null,
+        req.body.isSessionOnly
       );
     } catch (e: any) {
       abort(res, 401, String(e));
@@ -90,14 +92,13 @@ export class LogoutController {
 
   post = async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).user?.userId;
       const refreshToken = req.cookies.refreshToken;
 
-      if (!userId || !refreshToken) {
-        abort(res, 400, "User ID and refresh token are required");
+      if (!refreshToken) {
+        abort(res, 400, "Refresh token is required");
         return;
       }
-      await this.service.logout(userId, refreshToken);
+      await this.service.logout(refreshToken);
       clearTokens(res);
     } catch (e: any) {
       abort(res, 500, String(e));

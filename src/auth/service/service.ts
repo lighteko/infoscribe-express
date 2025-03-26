@@ -109,7 +109,8 @@ export class AuthService {
     }
   }
 
-  async logout(userId: string, refreshToken: string): Promise<void> {
+  async logout(refreshToken: string): Promise<void> {
+    const { userId } = this.tokens.verifyRefreshToken(refreshToken);
     await this.dao.deleteRefreshToken(userId, refreshToken);
   }
 
