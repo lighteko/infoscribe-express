@@ -41,15 +41,12 @@ export class LoginController {
         return;
       }
 
-      const { accessToken, refreshToken } = await this.service.login(
-        basicToken.split(" ")[1]
-      );
+      const response = await this.service.login(basicToken.split(" ")[1]);
 
       sendTokens(
         res,
-        { accessToken, refreshToken },
+        response,
         { message: "Log in success" },
-        null,
         req.body.isSessionOnly
       );
     } catch (e: any) {
@@ -94,10 +91,11 @@ export class LogoutController {
     try {
       const refreshToken = req.cookies.refreshToken;
 
-      if (!refreshToken) {
-        abort(res, 400, "Refresh token is required");
+      if (!refreshToken || refreshToken.split(" ")[0] !== "Bearer") {
+        abort(res, 401, "Refresh token is required");
         return;
       }
+
       await this.service.logout(refreshToken);
       clearTokens(res);
     } catch (e: any) {
@@ -115,14 +113,9 @@ export class EmailVerificationController {
 
   post = async (req: Request, res: Response) => {
     try {
-      const token = req.query.token as any as string;
+      const token = req.body.token as string;
       const response = await this.service.handleEmailVerification(token);
-      sendTokens(
-        res,
-        response,
-        { message: "Token reissued successfully" },
-        "https://infoscribe.me/dashboard"
-      );
+      sendTokens(res, response, { message: "Email verified successfully" });
     } catch (e: any) {
       abort(res, 500, String(e));
     }
@@ -140,7 +133,7 @@ export class PasswordResetController {
     try {
       const serialized = await serialize(PasswordResetRequestDTO, req.body);
       await this.service.resetPassword(serialized);
-      send(res, 204, { message: "Reset password successfully" });
+      send(res, 200, { message: "Reset password successfully" });
     } catch (e: any) {
       abort(res, 500, String(e));
     }

@@ -7,19 +7,13 @@ export const authenticate = (
   res: Response,
   next: NextFunction
 ) => {
+  const authHeader = req.headers.authorization;
   let token: string | undefined;
 
-  if (req.cookies && req.cookies.accessToken) {
-    token = req.cookies.accessToken;
-  } else {
-    const authHeader = req.headers.authorization;
-
-    if (authHeader) {
-      const tokenParts = authHeader.split(" ");
-
-      if (tokenParts.length === 2 && tokenParts[0] === "Bearer") {
-        token = tokenParts[1];
-      }
+  if (authHeader) {
+    const tokenParts = authHeader.split(" ");
+    if (tokenParts.length === 2 && tokenParts[0] === "Bearer") {
+      token = tokenParts[1];
     }
   }
 
