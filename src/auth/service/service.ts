@@ -48,6 +48,10 @@ export class AuthService {
       throw new Error("No user found");
     }
 
+    if (!parseInt(user.isVerified)) {
+      throw new Error("Email not verified");
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.pwd);
 
     if (!isPasswordValid) {

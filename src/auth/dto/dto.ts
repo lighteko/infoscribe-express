@@ -1,4 +1,4 @@
-import { DataClass } from "ts-data-object";
+import { DataClass, Exclude } from "ts-data-object";
 
 @DataClass()
 export class TokenPayloadDTO {
@@ -54,4 +54,10 @@ export class LoginUserResponseDTO {
   firstName!: string;
   lastName!: string;
   email!: string;
+
+  @Exclude()
+  pwd!: string;
+
+  @Exclude()
+  isVerified!: boolean;
 }
