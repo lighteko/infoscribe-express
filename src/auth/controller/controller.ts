@@ -1,6 +1,6 @@
 import { AuthService } from "@auth/service/service";
 import { Request, Response } from "express";
-import { abort, clearTokens, send, sendTokens } from "@src/output";
+import { abort, clearRefreshToken, send, sendTokens } from "@src/output";
 import { serialize } from "ts-data-object";
 import {
   PasswordResetRequestDTO,
@@ -97,7 +97,7 @@ export class LogoutController {
       }
 
       await this.service.logout(refreshToken);
-      clearTokens(res);
+      clearRefreshToken(res);
     } catch (e: any) {
       abort(res, 500, String(e));
     }
