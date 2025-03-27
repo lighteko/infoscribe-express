@@ -1,6 +1,7 @@
 import { AuthDAO } from "@auth/dao/dao";
 import {
   EmailVerificationDTO,
+  LoginUserResponseDTO,
   PasswordResetRequestDTO,
   PasswordResetValidationDTO,
   SignUpRequestDTO,
@@ -64,8 +65,10 @@ export class AuthService {
     // Store refresh token in database
     await this.dao.saveRefreshToken(user.userId, refreshToken);
 
+    const parsedUser = await serialize(LoginUserResponseDTO, user);
+
     return {
-      ...user,
+      user: parsedUser,
       accessToken,
       refreshToken,
     };

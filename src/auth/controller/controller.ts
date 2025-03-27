@@ -41,12 +41,14 @@ export class LoginController {
         return;
       }
 
-      const response = await this.service.login(basicToken.split(" ")[1]);
+      const { accessToken, refreshToken, user } = await this.service.login(
+        basicToken.split(" ")[1]
+      );
 
       sendTokens(
         res,
-        response,
-        { message: "Log in success" },
+        { accessToken, refreshToken },
+        { message: "Log in success", user },
         req.body.isSessionOnly
       );
     } catch (e: any) {
@@ -96,7 +98,7 @@ export class LogoutController {
         return;
       }
 
-      await this.service.logout(refreshToken);
+      await this.service.logout(refreshToken.split(" ")[1]);
       clearRefreshToken(res);
     } catch (e: any) {
       abort(res, 500, String(e));

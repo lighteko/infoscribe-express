@@ -51,12 +51,12 @@ export const sendTokens = (
   };
 
   // Simple response without redirect logic
-  res.status(200).json(responseData);
+  res.status(200).json({ data: responseData });
 };
 
 export function clearRefreshToken(res: Response) {
   const isProd = process.env.NODE_ENV === "production";
-  
+
   // Only clear the refresh token cookie since access token is no longer stored as a cookie
   res.clearCookie("refreshToken", {
     httpOnly: true,
@@ -64,7 +64,7 @@ export function clearRefreshToken(res: Response) {
     sameSite: isProd ? "none" : "lax",
     path: "/",
   });
-  
+
   res.status(200).send({ data: { message: "Log out succeeded" } });
 }
 

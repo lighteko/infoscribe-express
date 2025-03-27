@@ -46,3 +46,12 @@ export class UpdateUserRequestDTO {
   password!: string;
   isVerified!: boolean;
 }
+
+@DataClass()
+export class LoginUserResponseDTO {
+  userId!: string;
+  username!: string;
+  firstName!: string;
+  lastName!: string;
+  email!: string;
+}
