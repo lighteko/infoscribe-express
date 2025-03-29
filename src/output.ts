@@ -1,5 +1,5 @@
 import { ClassConstructor, plainToClass, validate } from "ts-data-object";
-import { Response } from "express";
+import { CookieOptions, Response } from "express";
 
 export function send(
   res: Response,
@@ -25,43 +25,46 @@ export function send(
   }
 }
 
-export function sendTokens(
+export const sendTokens = (
   res: Response,
-  cookies: { accessToken: string; refreshToken: string },
-  message: object,
-  redirect: string | null = null
-) {
+  tokens: { accessToken: string; refreshToken: string },
+  data: any,
+  isSessionOnly = false
+) => {
+  // Set proper cookie options based on environment
   const isProd = process.env.NODE_ENV === "production";
-  res.cookie("accessToken", cookies.accessToken, {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? "none" : "lax",
-    maxAge: 1000 * 60 * 15,
-  });
-  res.cookie("refreshToken", cookies.refreshToken, {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? "none" : "lax",
-    maxAge: 1000 * 60 * 60 * 24 * 7,
-  });
-  if (!redirect) res.status(201).send({ data: message });
-  else res.redirect(redirect);
-}
 
-export function clearTokens(res: Response) {
-  const isProd = process.env.NODE_ENV === "production";
-  res.clearCookie("accessToken", {
+  const cookieOptions: CookieOptions = {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? "none" : "lax",
-    maxAge: 1000 * 60 * 15,
-  });
+    maxAge: !isSessionOnly ? 7 * 24 * 60 * 60 * 1000 : undefined,
+  };
+
+  // Set only refreshToken as a cookie
+  res.cookie("refreshToken", `Bearer ${tokens.refreshToken}`, cookieOptions);
+
+  // Include access token in response body instead of cookie
+  const responseData = {
+    ...data,
+    accessToken: tokens.accessToken,
+  };
+
+  // Simple response without redirect logic
+  res.status(200).json({ data: responseData });
+};
+
+export function clearRefreshToken(res: Response) {
+  const isProd = process.env.NODE_ENV === "production";
+
+  // Only clear the refresh token cookie since access token is no longer stored as a cookie
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? "none" : "lax",
-    maxAge: 1000 * 60 * 60 * 24 * 7,
+    path: "/",
   });
+
   res.status(200).send({ data: { message: "Log out succeeded" } });
 }
 

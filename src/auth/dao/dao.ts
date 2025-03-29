@@ -65,7 +65,8 @@ export class AuthDAO {
         FIRST_NM AS firstName,
         LAST_NM AS lastName,
         EMAIL AS email,
-        PASSWRD AS pwd
+        PASSWRD AS pwd,
+        IS_VERIFIED AS isVerified
       FROM INSC_USER_L
       WHERE EMAIL = ${email}
     `;
