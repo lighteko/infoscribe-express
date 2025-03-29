@@ -18,6 +18,13 @@ export class SignupController {
   post = async (req: Request, res: Response) => {
     try {
       const serialized = await serialize(SignUpRequestDTO, req.body);
+
+      const { isValid, message } = this.service.validatePasswordStrength(
+        serialized.password
+      );
+
+      if (!isValid) return abort(res, 400, message);
+
       await this.service.signup(serialized);
       send(res, 201, { message: "User created successfully" });
     } catch (e: any) {
@@ -36,10 +43,8 @@ export class LoginController {
   post = async (req: Request, res: Response) => {
     try {
       const basicToken = req.headers.authorization;
-      if (!basicToken || basicToken.split(" ")[0] !== "Basic") {
-        abort(res, 401, "Authentication required");
-        return;
-      }
+      if (!basicToken || basicToken.split(" ")[0] !== "Basic")
+        return abort(res, 401, "Authentication required");
 
       const { accessToken, refreshToken, user } = await this.service.login(
         basicToken.split(" ")[1]
@@ -75,7 +80,12 @@ export class RefreshTokenController {
       const response = await this.service.reissueToken(
         refreshToken.split(" ")[1]
       );
-      sendTokens(res, response, { message: "Token reissued successfully" });
+      sendTokens(
+        res,
+        response,
+        { message: "Token reissued successfully" },
+        req.body.isSessionOnly
+      );
     } catch (e: any) {
       abort(res, 401, String(e));
     }
@@ -92,11 +102,8 @@ export class LogoutController {
   post = async (req: Request, res: Response) => {
     try {
       const refreshToken = req.cookies.refreshToken;
-
-      if (!refreshToken || refreshToken.split(" ")[0] !== "Bearer") {
-        abort(res, 401, "Refresh token is required");
-        return;
-      }
+      if (!refreshToken || refreshToken.split(" ")[0] !== "Bearer")
+        return abort(res, 401, "Refresh token is required");
 
       await this.service.logout(refreshToken.split(" ")[1]);
       clearRefreshToken(res);
@@ -134,6 +141,13 @@ export class PasswordResetController {
   patch = async (req: Request, res: Response) => {
     try {
       const serialized = await serialize(PasswordResetRequestDTO, req.body);
+
+      const { isValid, message } = this.service.validatePasswordStrength(
+        serialized.newPassword
+      );
+
+      if (!isValid) return abort(res, 400, message);
+
       await this.service.resetPassword(serialized);
       send(res, 200, { message: "Reset password successfully" });
     } catch (e: any) {
