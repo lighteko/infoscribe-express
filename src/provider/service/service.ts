@@ -1,6 +1,7 @@
 import { ProviderDAO } from "@provider/dao/dao";
-import { CreateProviderDTO, CreateSubscriptionDTO } from "@provider/dto/dto";
+import { CreateProviderDTO, CreateSubscriptionDTO, ProviderRoutineDTO } from "@provider/dto/dto";
 import { EventService } from "./event-service";
+import { serialize } from "ts-data-object";
 
 export class ProviderService {
   dao: ProviderDAO;
@@ -21,7 +22,9 @@ export class ProviderService {
 
   async createProvider(inputData: CreateProviderDTO) {
     const providerId = await this.dao.createProvider(inputData);
-    await this.event.publishProviderRoutine({ providerId, ...inputData });
+    const provider = await this.dao.getProvider(providerId);
+    const routineData = await serialize(ProviderRoutineDTO, provider);
+    await this.event.publishProviderRoutine(routineData);
   }
 
   async createSubscription(inputData: CreateSubscriptionDTO) {
@@ -33,7 +36,7 @@ export class ProviderService {
         title: provider.title,
         sendingDay: provider.sendingDay,
         locale: provider.locale,
-        categories: provider.categories,
+        tags: provider.tags,
         ...inputData,
       });
     }

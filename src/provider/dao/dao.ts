@@ -24,19 +24,33 @@ export class ProviderDAO {
       )
     `;
 
-    const categoriesQuery = SQL`
-      INSERT INTO INSC_PROVIDER_CATEGORY_MAP_L
-        (MAP_ID, PROVIDER_ID, CATEGORY_ID, CREA_DT)
+    const tagsQuery = SQL`
+      INSERT INTO INSC_PROVIDER_TAG_MAP_L
+        (MAP_ID, PROVIDER_ID, TAG_ID, CREA_DT)
       VALUES
     `;
 
-    const categoryValues = inputData.categories.map(
-      (category) =>
-        SQL`(${uuid4().toString()}, ${providerId}, ${category}, CURRENT_TIMESTAMP)`
+    const tagRows = inputData.tagIds.map(
+      (tagId) =>
+        SQL`(${uuid4().toString()}, ${providerId}, ${tagId}, CURRENT_TIMESTAMP)`
     );
 
-    for (let value of categoryValues) {
-      categoriesQuery.append(value);
+    for (let row of tagRows) {
+      tagsQuery.append(row);
+    }
+
+    const newTagsQuery = SQL`
+      INSERT INTO INSC_TAG_L
+        (TAG_ID, TAG, CREA_DT)
+      VALUES
+    `;
+
+    const newTagRows = inputData.tags.map(
+      (tag) => SQL`(${uuid4().toString()}, ${tag}, CURRENT_TIMESTAMP)`
+    );
+
+    for (let row of newTagRows) {
+      newTagsQuery.append(row);
     }
 
     const subscriptionQuery = SQL`
@@ -52,7 +66,8 @@ export class ProviderDAO {
 
     const cursor = this.db.cursor();
     await cursor.execute(providerQuery);
-    await cursor.execute(categoriesQuery);
+    await cursor.execute(tagsQuery);
+    inputData.tags.length > 0 && (await cursor.execute(newTagsQuery));
     await cursor.execute(subscriptionQuery);
     return providerId;
   }
@@ -83,11 +98,11 @@ export class ProviderDAO {
         p.title AS title,
         p.SENDING_DAY AS sendingDay,
         p.LOCALE AS locale,
-        JSON_ARRAYAGG(c.NAME) AS categories, 
+        JSON_ARRAYAGG(t.NAME) AS categories, 
         p.CREA_DT AS createdDate
       FROM INSC_PROVIDER_L p
-      LEFT JOIN INSC_PROVIDER_CATEGORY_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
-      LEFT JOIN INSC_CATEGORY_M c ON c.CATEGORY_ID = map.CATEGORY_ID
+      LEFT JOIN INSC_PROVIDER_TAG_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
+      LEFT JOIN INSC_TAG_L t ON t.TAG_ID = map.TAG_ID
       GROUP BY p.PROVIDER_ID
     `;
 
@@ -105,11 +120,11 @@ export class ProviderDAO {
         p.title AS title,
         p.SENDING_DAY AS sendingDay,
         p.LOCALE AS locale,
-        JSON_ARRAYAGG(c.NAME) AS categories, 
+        JSON_ARRAYAGG(t.TAG) AS tags, 
         p.CREA_DT AS createdDate
       FROM INSC_PROVIDER_L p
-      LEFT JOIN INSC_PROVIDER_CATEGORY_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
-      LEFT JOIN INSC_CATEGORY_M c ON c.CATEGORY_ID = map.CATEGORY_ID
+      LEFT JOIN INSC_PROVIDER_TAG_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
+      LEFT JOIN INSC_TAG_L t ON t.TAG_ID = map.TAG_ID
       WHERE p.PROVIDER_ID = ${providerId}
       GROUP BY p.PROVIDER_ID
     `;
@@ -133,7 +148,7 @@ export class ProviderDAO {
   async getSubscriberCount(providerId: string) {
     const query = SQL`
       SELECT COUNT(*)
-      FROM INSC_PROVIDER_CATEGORY_MAP_L
+      FROM INSC_PROVIDER_TAG_MAP_L
       WHERE PROVIDER_ID = ${providerId}
     `;
 

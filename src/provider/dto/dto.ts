@@ -5,7 +5,8 @@ export class CreateProviderDTO {
   userId!: string;
   title!: string;
   locale!: string;
-  categories!: string[];
+  tagIds!: string[];
+  tags!: string[];
   sendingDay!: string;
 }
 
@@ -22,11 +23,21 @@ export class GetProviderResponseDTO {
   title!: string;
   sendingDay!: string;
   locale!: string;
-  categories!: string[];
+  tags!: string[];
   createdDate!: Date;
 }
 
 @DataClass()
 export class GetAllProvidersResponseDTO {
   providers!: GetProviderResponseDTO[];
+}
+
+@DataClass()
+export class ProviderRoutineDTO {
+  providerId!: string;
+  userId!: string;
+  title!: string;
+  sendingDay!: string;
+  locale!: string;
+  tags!: string[];
 }
