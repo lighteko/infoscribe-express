@@ -14,14 +14,14 @@ export class ProviderDAO {
 
     const providerQuery = SQL`
       INSERT INTO INSC_PROVIDER_L
-        (PROVIDER_ID, USER_ID, TITLE, SENDING_DAY, LOCALE, CREA_DT)
+        (PROVIDER_ID, USER_ID, TITLE, SUMMARY, SCHEDULE, LOCALE)
       VALUES (
         ${providerId},
         ${inputData.userId},
         ${inputData.title},
-        ${inputData.sendingDay},
-        ${inputData.locale},
-        CURRENT_TIMESTAMP
+        ${inputData.schedule},
+        ${inputData.schedule},
+        ${inputData.locale}
       )
     `;
 
@@ -41,15 +41,15 @@ export class ProviderDAO {
         LEFT JOIN INSC_TAG_L d ON d.TAG = t.TAG
         WHERE d.TAG IS NULL
       )
-      INSERT INTO INSC_TAG_L (TAG, CREA_DT)
-      SELECT TAG, CURRENT_TIMESTAMP
+      INSERT INTO INSC_TAG_L (TAG)
+      SELECT TAG
       FROM TO_INSERT;
     `);
 
     const providerTagMapQueries: SQLStatement[] = inputData.tags.map((tag) => {
       return SQL`
-        INSERT INTO INSC_PROVIDER_TAG_MAP_L (PROVIDER_ID, TAG_ID, CREA_DT)
-        SELECT ${providerId}, TAG_ID, CURRENT_TIMESTAMP
+        INSERT INTO INSC_PROVIDER_TAG_MAP_L (PROVIDER_ID, TAG_ID)
+        SELECT ${providerId}, TAG_ID
         FROM INSC_TAG_L
         WHERE TAG = ${tag};
       `;
@@ -57,12 +57,11 @@ export class ProviderDAO {
 
     const subscriptionQuery = SQL`
       INSERT INTO INSC_SUBSCRIPTION_L
-        (SUBSCRIPTION_ID, USER_ID, PROVIDER_ID, CREA_DT)
+        (SUBSCRIPTION_ID, USER_ID, PROVIDER_ID)
       VALUES (
         ${uuid4().toString()},
         ${inputData.userId},
-        ${providerId},
-        CURRENT_TIMESTAMP
+        ${providerId}
       )
     `;
 
@@ -102,7 +101,7 @@ export class ProviderDAO {
         p.PROVIDER_ID AS providerId,
         p.USER_ID AS userId,
         p.title AS title,
-        p.SENDING_DAY AS sendingDay,
+        p.SCHEDULE AS schedule,
         p.LOCALE AS locale,
         JSON_ARRAYAGG(t.NAME) AS categories, 
         p.CREA_DT AS createdDate
@@ -124,7 +123,7 @@ export class ProviderDAO {
         p.PROVIDER_ID AS providerId,
         p.USER_ID AS userId,
         p.title AS title,
-        p.SENDING_DAY AS sendingDay,
+        p.SCHEDULE AS schedule,
         p.LOCALE AS locale,
         JSON_ARRAYAGG(t.TAG) AS tags, 
         p.CREA_DT AS createdDate

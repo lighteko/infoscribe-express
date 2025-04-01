@@ -14,7 +14,7 @@ export class SignUpRequestDTO {
   firstName!: string;
   lastName!: string;
   email!: string;
-  password!: string;
+  pwd!: string;
 }
 
 @DataClass()
@@ -43,7 +43,7 @@ export class UpdateUserRequestDTO {
   firstName!: string;
   lastName!: string;
   email!: string;
-  password!: string;
+  pwd!: string;
   isVerified!: boolean;
 }
 
@@ -60,4 +60,15 @@ export class LoginUserResponseDTO {
 
   @Exclude()
   isVerified!: boolean;
+}
+
+@DataClass()
+export class UserPayloadDTO {
+  userId!: string;
+  username!: string;
+  firstName!: string;
+  lastName!: string;
+  email!: string;
+  pwd!: string;
+  isVerified!: string;
 }

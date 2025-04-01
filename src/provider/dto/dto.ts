@@ -4,9 +4,10 @@ import { DataClass } from "ts-data-object";
 export class CreateProviderDTO {
   userId!: string;
   title!: string;
+  summary!: string;
   locale!: string;
   tags!: string[];
-  sendingDay!: string;
+  schedule!: string;
 }
 
 @DataClass()
@@ -20,7 +21,7 @@ export class GetProviderResponseDTO {
   providerId!: string;
   userId!: string;
   title!: string;
-  sendingDay!: string;
+  schedule!: string;
   locale!: string;
   tags!: string[];
   createdDate!: Date;
@@ -36,7 +37,12 @@ export class ProviderRoutineDTO {
   providerId!: string;
   userId!: string;
   title!: string;
-  sendingDay!: string;
+  schedule!: string;
   locale!: string;
   tags!: string[];
+}
+
+@DataClass()
+export class GetSubscriptionDTO {
+  providerId!: string;
 }

@@ -12,13 +12,12 @@ export class LetterDAO {
   async createLetter(inputData: CreateLetterDTO) {
     const query = SQL`
       INSERT INTO INSC_LETTER_L
-        (LETTER_ID, PROVIDER_ID, TITLE, S3_PATH, CREA_DT)
+        (LETTER_ID, PROVIDER_ID, TITLE, S3_PATH)
       VALUES (
         ${uuid4().toString()},
         ${inputData.providerId},
         ${inputData.title},
-        ${inputData.s3Path},
-        CURRENT_TIMESTAMP
+        ${inputData.s3Path}
       )
     `;
 
@@ -29,13 +28,12 @@ export class LetterDAO {
   async createDispatch(inputData: CreateDispatchDTO) {
     const query = SQL`
       INSERT INTO INSC_LETTER_DISPATCH_L
-        (DISPATCH_ID, LETTER_ID, USER_ID, STAGE, SENT_DT)
+        (DISPATCH_ID, LETTER_ID, USER_ID, STAGE)
       VALUES (
         ${uuid4().toString()},
         ${inputData.letterId},
         ${inputData.userId},
-        ${inputData.stage},
-        CURRENT_TIMESTAMP
+        ${inputData.stage}
       )
     `;
 

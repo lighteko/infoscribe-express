@@ -7,6 +7,7 @@ import {
   SignUpRequestDTO,
   TokenPayloadDTO,
   UpdateUserRequestDTO,
+  UserPayloadDTO,
 } from "@auth/dto/dto";
 import bcrypt from "bcrypt";
 import Tokens from "@lib/infra/tokens";
@@ -29,8 +30,8 @@ export class AuthService {
     if (user) {
       throw new Error("User already exists");
     }
-    const hashedPassword = await bcrypt.hash(inputData.password, 10);
-    inputData.password = hashedPassword;
+    const hashedPassword = await bcrypt.hash(inputData.pwd, 10);
+    inputData.pwd = hashedPassword;
     const userId = await this.dao.createUser(inputData);
     const emailDTO: EmailVerificationDTO = {
       userId,
@@ -42,7 +43,8 @@ export class AuthService {
 
   async login(basicToken: string) {
     const { email, password } = this.tokens.parseBasicToken(basicToken);
-    const user = await this.dao.getUserByEmail(email);
+    const packet = await this.dao.getUserByEmail(email);
+    const user = await serialize(UserPayloadDTO, packet);
 
     if (!user) {
       throw new Error("No user found");
@@ -133,7 +135,8 @@ export class AuthService {
   }
 
   async handleEmailVerification(token: string) {
-    const user = await this.dao.getUserByEmailToken(token);
+    const packet = await this.dao.getUserByEmailToken(token);
+    const user = await serialize(UserPayloadDTO, packet);
     await this.dao.activateUser(user.userId);
     await this.dao.disableToken(token);
 
@@ -154,7 +157,8 @@ export class AuthService {
   }
 
   async sendPasswordResetEmail(inputData: PasswordResetValidationDTO) {
-    const user = await this.dao.getUserByEmail(inputData.email);
+    const packet = await this.dao.getUserByEmail(inputData.email);
+    const user = await serialize(UserPayloadDTO, packet);
     if (!user || user.username !== inputData.username)
       throw new Error("Either the email is wrong or the user does not exist");
 
@@ -170,9 +174,10 @@ export class AuthService {
   }
 
   async resetPassword(inputData: PasswordResetRequestDTO) {
-    const user = await this.dao.getUserByEmailToken(inputData.token);
+    const packet = await this.dao.getUserByEmailToken(inputData.token);
+    const user = await serialize(UserPayloadDTO, packet);
     const hashedPassword = await bcrypt.hash(inputData.newPassword, 10);
-    user.password = hashedPassword;
+    user.pwd = hashedPassword;
 
     const serialized = await serialize(UpdateUserRequestDTO, user);
     await this.dao.updateUser(serialized);

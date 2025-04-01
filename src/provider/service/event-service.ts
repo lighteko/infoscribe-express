@@ -9,51 +9,40 @@ export class EventService {
   }
 
   async publishProviderRoutine(inputData: ProviderRoutineDTO) {
-    const { providerId, tags, locale, sendingDay } = inputData;
-
+    const { providerId, tags, locale, schedule } = inputData;
     await this.bridge.putRule(
       `${providerId}-collect`,
-      `0 0 0 ? * ${sendingDay},${this.getAlternateDays(sendingDay)} *`,
+      this.create2DayIntervalCron(schedule),
       "ENABLED",
       {
-        // triggered on every two days after sending day
         eventType: "collect",
         providerId,
         tags,
         locale,
       }
     );
-    await this.bridge.putRule(
-      `${providerId}-build`,
-      `0 0 0 ? * ${sendingDay} *`,
-      "ENABLED",
-      {
-        // triggered every sendingDay
-        eventType: "build",
-        providerId,
-        tags,
-        locale,
-      }
-    );
-  }
-
-  private getAlternateDays(sendingDay: string): string {
-    const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-    const sendingDayIndex = days.indexOf(sendingDay);
-
-    if (sendingDayIndex === -1) {
-      throw new Error(`Invalid sending day: ${sendingDay}`);
-    }
-
-    const day1 = days[(sendingDayIndex + 2) % 7];
-    const day2 = days[(sendingDayIndex + 4) % 7];
-    const day3 = days[(sendingDayIndex + 6) % 7];
-
-    return `${day1},${day2},${day3}`;
+    await this.bridge.putRule(`${providerId}-build`, schedule, "ENABLED", {
+      eventType: "build",
+      providerId,
+      tags,
+      locale,
+    });
   }
 
   async killProviderRoutine(providerId: string) {
     await this.bridge.deleteRule(`${providerId}-collect`);
     await this.bridge.deleteRule(`${providerId}-build`);
+  }
+
+  private create2DayIntervalCron(schedule: string): string {
+    const parts = schedule.trim().split(/\s+/);
+    const [minute, hour, dayOfMonth, month, dayOfWeekStr] = parts;
+    let dayOfWeek = parseInt(dayOfWeekStr, 10);
+    if (dayOfWeek === 7) {
+      dayOfWeek = 0;
+    }
+    const intervals = [2, 4, 6].map((offset) => (dayOfWeek + offset) % 7);
+    const newDayOfWeek = intervals.join(",");
+    return `${minute} ${hour} ${dayOfMonth} ${month} ${newDayOfWeek}`;
   }
 }
