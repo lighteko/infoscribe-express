@@ -5,7 +5,6 @@ export class CreateProviderDTO {
   userId!: string;
   title!: string;
   locale!: string;
-  tagIds!: string[];
   tags!: string[];
   sendingDay!: string;
 }

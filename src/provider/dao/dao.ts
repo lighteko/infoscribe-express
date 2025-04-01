@@ -1,5 +1,5 @@
 import DB from "@lib/infra/mysql";
-import SQL from "sql-template-strings";
+import SQL, { SQLStatement } from "sql-template-strings";
 import { CreateProviderDTO, CreateSubscriptionDTO } from "@provider/dto/dto";
 import { v4 as uuid4 } from "uuid";
 
@@ -11,6 +11,7 @@ export class ProviderDAO {
 
   async createProvider(inputData: CreateProviderDTO) {
     const providerId = uuid4().toString();
+
     const providerQuery = SQL`
       INSERT INTO INSC_PROVIDER_L
         (PROVIDER_ID, USER_ID, TITLE, SENDING_DAY, LOCALE, CREA_DT)
@@ -25,33 +26,34 @@ export class ProviderDAO {
     `;
 
     const tagsQuery = SQL`
-      INSERT INTO INSC_PROVIDER_TAG_MAP_L
-        (MAP_ID, PROVIDER_ID, TAG_ID, CREA_DT)
-      VALUES
+      WITH INPUT_TAGS(TAG) AS (
+        VALUES
     `;
+    inputData.tags.forEach((tag, index) => {
+      if (index > 0) tagsQuery.append(", ");
+      tagsQuery.append(SQL`(${tag})`);
+    });
+    tagsQuery.append(SQL`
+      ),
+      TO_INSERT AS (
+        SELECT t.TAG
+        FROM INPUT_TAGS t
+        LEFT JOIN INSC_TAG_L d ON d.TAG = t.TAG
+        WHERE d.TAG IS NULL
+      )
+      INSERT INTO INSC_TAG_L (TAG, CREA_DT)
+      SELECT TAG, CURRENT_TIMESTAMP
+      FROM TO_INSERT;
+    `);
 
-    const tagRows = inputData.tagIds.map(
-      (tagId) =>
-        SQL`(${uuid4().toString()}, ${providerId}, ${tagId}, CURRENT_TIMESTAMP)`
-    );
-
-    for (let row of tagRows) {
-      tagsQuery.append(row);
-    }
-
-    const newTagsQuery = SQL`
-      INSERT INTO INSC_TAG_L
-        (TAG_ID, TAG, CREA_DT)
-      VALUES
-    `;
-
-    const newTagRows = inputData.tags.map(
-      (tag) => SQL`(${uuid4().toString()}, ${tag}, CURRENT_TIMESTAMP)`
-    );
-
-    for (let row of newTagRows) {
-      newTagsQuery.append(row);
-    }
+    const providerTagMapQueries: SQLStatement[] = inputData.tags.map((tag) => {
+      return SQL`
+        INSERT INTO INSC_PROVIDER_TAG_MAP_L (PROVIDER_ID, TAG_ID, CREA_DT)
+        SELECT ${providerId}, TAG_ID, CURRENT_TIMESTAMP
+        FROM INSC_TAG_L
+        WHERE TAG = ${tag};
+      `;
+    });
 
     const subscriptionQuery = SQL`
       INSERT INTO INSC_SUBSCRIPTION_L
@@ -65,10 +67,14 @@ export class ProviderDAO {
     `;
 
     const cursor = this.db.cursor();
-    await cursor.execute(providerQuery);
-    await cursor.execute(tagsQuery);
-    inputData.tags.length > 0 && (await cursor.execute(newTagsQuery));
-    await cursor.execute(subscriptionQuery);
+    const queries = [
+      providerQuery,
+      tagsQuery,
+      ...providerTagMapQueries,
+      subscriptionQuery,
+    ];
+    await cursor.execute(...queries);
+
     return providerId;
   }
 
