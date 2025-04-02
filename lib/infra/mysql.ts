@@ -91,16 +91,15 @@ class DB {
       if (isTransactionRequired) {
         await connection.beginTransaction();
       }
-      const response = [];
+      let response: any[] = [];
       for (let statement of statements) {
         const [rows] = await connection.query<T>(statement);
-        response.push(rows);
+        response = response.concat(rows);
       }
 
       if (isTransactionRequired) {
         await connection.commit();
       }
-
       return response;
     } catch (error) {
       if (isTransactionRequired) {
@@ -127,7 +126,7 @@ class DB {
           statements,
           statements.length > 1
         );
-        return result[0] ?? null;
+        return result.length === 1 ? result[0] : null;
       },
       execute: async (...statements: SQLStatement[]) => {
         await this.executeQuery(statements, statements.length > 1);

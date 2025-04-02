@@ -28,7 +28,7 @@ export class ProviderService {
   async createProvider(inputData: CreateProviderDTO) {
     const providerId = await this.dao.createProvider(inputData);
     const provider = await this.dao.getProvider(providerId);
-    const routineData = await serialize(ProviderRoutineDTO, provider);
+    const routineData = await serialize(ProviderRoutineDTO, provider!);
     await this.event.publishProviderRoutine(routineData);
   }
 
@@ -37,7 +37,7 @@ export class ProviderService {
     await this.dao.createSubscription(inputData);
     if (subscribers === 0) {
       const packet = await this.dao.getProvider(inputData.providerId);
-      const provider = await serialize(ProviderRoutineDTO, packet);
+      const provider = await serialize(ProviderRoutineDTO, packet!);
       await this.event.publishProviderRoutine({
         title: provider.title,
         schedule: provider.schedule,
@@ -50,7 +50,7 @@ export class ProviderService {
 
   async deleteSubscription(subscriptionId: string) {
     const packet = await this.dao.getSubscription(subscriptionId);
-    const subscription = await serialize(GetSubscriptionDTO, packet);
+    const subscription = await serialize(GetSubscriptionDTO, packet!);
     const subscribers = await this.dao.getSubscriberCount(
       subscription.providerId
     );

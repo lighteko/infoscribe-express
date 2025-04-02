@@ -193,8 +193,8 @@ export class AuthDAO {
     FROM INSC_EMAIL_TOKEN_L t
     JOIN INSC_USER_L u ON t.USER_ID = u.USER_ID
     WHERE t.TOKEN = ${token}
-      AND TIMESTAMPDIFF(MINUTE, t.CREA_DT, NOW()) <= 10
-      AND NOT t.IS_USED
+      AND t.CREA_DT >= NOW() - INTERVAL 10 MINUTE
+      AND NOT t.IS_USED;
     `;
 
     const cursor = this.db.cursor();

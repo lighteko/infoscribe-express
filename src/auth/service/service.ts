@@ -44,12 +44,13 @@ export class AuthService {
   async login(basicToken: string) {
     const { email, password } = this.tokens.parseBasicToken(basicToken);
     const packet = await this.dao.getUserByEmail(email);
-    const user = await serialize(UserPayloadDTO, packet);
-
-    if (!user) {
+    
+    if (!packet) {
       throw new Error("No user found");
     }
 
+    const user = await serialize(UserPayloadDTO, packet);
+    
     if (!parseInt(user.isVerified)) {
       throw new Error("Email not verified");
     }
@@ -136,7 +137,7 @@ export class AuthService {
 
   async handleEmailVerification(token: string) {
     const packet = await this.dao.getUserByEmailToken(token);
-    const user = await serialize(UserPayloadDTO, packet);
+    const user = await serialize(UserPayloadDTO, packet!);
     await this.dao.activateUser(user.userId);
     await this.dao.disableToken(token);
 
@@ -144,7 +145,6 @@ export class AuthService {
       userId: user.userId,
       email: user.email,
     };
-
     const accessToken = this.tokens.generateAccessToken(payload);
     const refreshToken = this.tokens.generateRefreshToken(payload);
 
@@ -158,7 +158,7 @@ export class AuthService {
 
   async sendPasswordResetEmail(inputData: PasswordResetValidationDTO) {
     const packet = await this.dao.getUserByEmail(inputData.email);
-    const user = await serialize(UserPayloadDTO, packet);
+    const user = await serialize(UserPayloadDTO, packet!);
     if (!user || user.username !== inputData.username)
       throw new Error("Either the email is wrong or the user does not exist");
 
@@ -175,7 +175,7 @@ export class AuthService {
 
   async resetPassword(inputData: PasswordResetRequestDTO) {
     const packet = await this.dao.getUserByEmailToken(inputData.token);
-    const user = await serialize(UserPayloadDTO, packet);
+    const user = await serialize(UserPayloadDTO, packet!);
     const hashedPassword = await bcrypt.hash(inputData.newPassword, 10);
     user.pwd = hashedPassword;
 
