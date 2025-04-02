@@ -14,7 +14,7 @@ export default function providerRoutes() {
 
   router.get("/", providerController.get);
   router.get("/all", getAllProvidersController.get);
-  router.post("/", providerController.post);
+  router.post("/create", providerController.post);
   router.post("/subscribe", createSubscriptionController.post);
 
   return router;

@@ -44,17 +44,14 @@ export class AuthService {
   async login(basicToken: string) {
     const { email, password } = this.tokens.parseBasicToken(basicToken);
     const packet = await this.dao.getUserByEmail(email);
-    
+
     if (!packet) {
       throw new Error("No user found");
     }
-
     const user = await serialize(UserPayloadDTO, packet);
-    
     if (!parseInt(user.isVerified)) {
       throw new Error("Email not verified");
     }
-
     const isPasswordValid = await bcrypt.compare(password, user.pwd);
 
     if (!isPasswordValid) {
