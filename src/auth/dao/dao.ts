@@ -115,7 +115,7 @@ export class AuthDAO {
     const query = SQL`
       UPDATE INSC_REFRESH_TOKEN_L
       SET TOKEN = ${newToken},
-          UPDT
+          UPDT_DT = CURRENT_TIMESTAMP
       WHERE USER_ID = ${userId}
       AND TOKEN = ${oldToken}
     `;
