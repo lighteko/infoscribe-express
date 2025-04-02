@@ -1,6 +1,12 @@
 import { ProviderDAO } from "@provider/dao/dao";
-import { CreateProviderDTO, CreateSubscriptionDTO } from "@provider/dto/dto";
+import {
+  CreateProviderDTO,
+  CreateSubscriptionDTO,
+  GetSubscriptionDTO,
+  ProviderRoutineDTO,
+} from "@provider/dto/dto";
 import { EventService } from "./event-service";
+import { serialize } from "ts-data-object";
 
 export class ProviderService {
   dao: ProviderDAO;
@@ -21,29 +27,35 @@ export class ProviderService {
 
   async createProvider(inputData: CreateProviderDTO) {
     const providerId = await this.dao.createProvider(inputData);
-    await this.event.publishProviderRoutine({ providerId, ...inputData });
+    const provider = await this.dao.getProvider(providerId);
+    const routineData = await serialize(ProviderRoutineDTO, provider!);
+    await this.event.publishProviderRoutine(routineData);
   }
 
   async createSubscription(inputData: CreateSubscriptionDTO) {
     const subscribers = await this.dao.getSubscriberCount(inputData.providerId);
     await this.dao.createSubscription(inputData);
     if (subscribers === 0) {
-      const provider = await this.dao.getProvider(inputData.providerId);
+      const packet = await this.dao.getProvider(inputData.providerId);
+      const provider = await serialize(ProviderRoutineDTO, packet!);
       await this.event.publishProviderRoutine({
         title: provider.title,
-        sendingDay: provider.sendingDay,
+        schedule: provider.schedule,
         locale: provider.locale,
-        categories: provider.categories,
+        tags: provider.tags,
         ...inputData,
       });
     }
   }
 
   async deleteSubscription(subscriptionId: string) {
-    const res = await this.dao.getSubscription(subscriptionId);
-    const subscribers = await this.dao.getSubscriberCount(res.providerId);
+    const packet = await this.dao.getSubscription(subscriptionId);
+    const subscription = await serialize(GetSubscriptionDTO, packet!);
+    const subscribers = await this.dao.getSubscriberCount(
+      subscription.providerId
+    );
     if (subscribers === 1) {
-      await this.event.killProviderRoutine(res.providerId);
+      await this.event.killProviderRoutine(subscription.providerId);
     }
     await this.dao.deleteSubscription(subscriptionId);
   }

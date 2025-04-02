@@ -1,13 +1,5 @@
 import EventBridge from "@lib/infra/bridge";
-
-interface ProviderRoutineData {
-  providerId: string;
-  userId: string;
-  title: string;
-  sendingDay: string;
-  locale: string;
-  categories: string[];
-}
+import { ProviderRoutineDTO } from "../dto/dto";
 
 export class EventService {
   bridge: EventBridge;
@@ -16,25 +8,47 @@ export class EventService {
     this.bridge = EventBridge.getInstance();
   }
 
-  async publishProviderRoutine(inputData: ProviderRoutineData) {
-    const { providerId, categories, locale, sendingDay } = inputData;
-
-    await this.bridge.putRule(`${providerId}-collect`, "0 0 */2 * * ?", "ENABLED", { // triggered every two days
-      eventType: "collect",
-      providerId,
-      categories,
-      locale,
-    });
-    await this.bridge.putRule(`${providerId}-build`, `0 0 0 ? * ${sendingDay} *`, "ENABLED", { // triggered every sendingDay
+  async publishProviderRoutine(inputData: ProviderRoutineDTO) {
+    const { providerId, tags, locale, schedule } = inputData;
+    await this.bridge.putRule(
+      `${providerId}-collect`,
+      this.create2DayIntervalCron(schedule),
+      "ENABLED",
+      {
+        eventType: "collect",
+        providerId,
+        tags,
+        locale,
+      }
+    );
+    await this.bridge.putRule(`${providerId}-build`, schedule, "ENABLED", {
       eventType: "build",
       providerId,
-      categories,
+      tags,
       locale,
     });
   }
 
   async killProviderRoutine(providerId: string) {
     await this.bridge.deleteRule(`${providerId}-collect`);
-    await this.bridge.deleteRule(`${providerId}-builder`);
+    await this.bridge.deleteRule(`${providerId}-build`);
+  }
+
+  private create2DayIntervalCron(schedule: string): string {
+    const cronBody = schedule.replace(/^cron\(|\)$/g, ""); 
+    const [minute, hour, , month, dayOfWeekStr] = cronBody.trim().split(/\s+/);
+
+    const dayOfWeeks = dayOfWeekStr.split(",").map((d) => {
+      const n = parseInt(d, 10);
+      return n === 7 ? 0 : n; 
+    });
+
+    const baseDay = dayOfWeeks[0];
+    const intervals = [0, 2, 4].map((offset) => (baseDay + offset) % 7);
+    const newDayOfWeek = intervals.join(",");
+
+    const newCron = `cron(${minute} ${hour} ? ${month} ${newDayOfWeek} *)`;
+    console.log(newCron);
+    return newCron;
   }
 }

@@ -134,7 +134,14 @@ class Tokens {
   } {
     try {
       const decoded = Buffer.from(basicToken, "base64").toString("utf8");
-      const [email, password] = decoded.split(":");
+      const delimiterPos = decoded.indexOf(":");
+      if (delimiterPos === -1) {
+        throw new Error("Invalid credentials format");
+      }
+      const email = decoded.substring(0, delimiterPos);
+      const password = decoded.substring(delimiterPos + 1);
+      console.log(email);
+      console.log(password);
       if (!email || !password) {
         throw new Error("Invalid basic token format");
       }

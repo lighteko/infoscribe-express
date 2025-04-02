@@ -20,7 +20,7 @@ export class SignupController {
       const serialized = await serialize(SignUpRequestDTO, req.body);
 
       const { isValid, message } = this.service.validatePasswordStrength(
-        serialized.password
+        serialized.pwd
       );
 
       if (!isValid) return abort(res, 400, message);

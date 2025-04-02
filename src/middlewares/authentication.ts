@@ -32,6 +32,7 @@ export const authenticate = (
 
     next();
   } catch (error) {
+    console.error(error);
     return abort(res, 401, "Invalid or expired token");
   }
 };

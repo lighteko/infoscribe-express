@@ -77,7 +77,7 @@ class DB {
   private constructor() {}
 
   private async executeQuery<T extends QueryResult>(
-    statement: SQLStatement,
+    statements: SQLStatement[],
     isTransactionRequired = false
   ) {
     if (!DB.connectionPool) {
@@ -91,14 +91,16 @@ class DB {
       if (isTransactionRequired) {
         await connection.beginTransaction();
       }
-
-      const [rows] = await connection.query<T>(statement);
+      let response: any[] = [];
+      for (let statement of statements) {
+        const [rows] = await connection.query<T>(statement);
+        response = response.concat(rows);
+      }
 
       if (isTransactionRequired) {
         await connection.commit();
       }
-
-      return rows;
+      return response;
     } catch (error) {
       if (isTransactionRequired) {
         await connection.rollback();
@@ -113,30 +115,21 @@ class DB {
 
   public cursor() {
     return {
-      fetchAll: async (
-        statement: SQLStatement,
-        isTransactionRequired = false
-      ) => {
+      fetchAll: async (...statements: SQLStatement[]) => {
         return await this.executeQuery<RowDataPacket[]>(
-          statement,
-          isTransactionRequired
+          statements,
+          statements.length > 1
         );
       },
-      fetchOne: async (
-        statement: SQLStatement,
-        isTransactionRequired = false
-      ) => {
+      fetchOne: async (...statements: SQLStatement[]) => {
         const result = await this.executeQuery<RowDataPacket[]>(
-          statement,
-          isTransactionRequired
+          statements,
+          statements.length > 1
         );
-        return result[0] ?? null;
+        return result.length === 1 ? result[0] : null;
       },
-      execute: async (
-        statement: SQLStatement,
-        isTransactionRequired = false
-      ) => {
-        await this.executeQuery(statement, isTransactionRequired);
+      execute: async (...statements: SQLStatement[]) => {
+        await this.executeQuery(statements, statements.length > 1);
       },
     };
   }
