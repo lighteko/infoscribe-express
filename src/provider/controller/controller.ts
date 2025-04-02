@@ -32,7 +32,11 @@ export class ProviderController {
 
   post = async (req: Request, res: Response) => {
     try {
-      const serialized = await serialize(CreateProviderDTO, req.body);
+      const user = (req as any).user;
+      const serialized = await serialize(CreateProviderDTO, {
+        ...req.body,
+        userId: user.userId,
+      });
       await this.service.createProvider(serialized);
       send(res, 201, { message: "Provider created successfully" });
     } catch (e: any) {

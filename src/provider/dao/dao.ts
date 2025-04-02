@@ -19,37 +19,44 @@ export class ProviderDAO {
         ${providerId},
         ${inputData.userId},
         ${inputData.title},
-        ${inputData.schedule},
+        ${inputData.summary},
         ${inputData.schedule},
         ${inputData.locale}
       )
     `;
 
-    const tagsQuery = SQL`
-      WITH INPUT_TAGS(TAG) AS (
-        VALUES
-    `;
-    inputData.tags.forEach((tag, index) => {
-      if (index > 0) tagsQuery.append(", ");
-      tagsQuery.append(SQL`(${tag})`);
-    });
-    tagsQuery.append(SQL`
-      ),
-      TO_INSERT AS (
-        SELECT t.TAG
-        FROM INPUT_TAGS t
-        LEFT JOIN INSC_TAG_L d ON d.TAG = t.TAG
+    const tagsQuery = SQL``;
+
+    // Handle empty tags array
+    if (inputData.tags.length === 0) {
+      tagsQuery.append(SQL`
+        -- No tags to insert
+      `);
+    } else {
+      // Create a union-based approach instead of VALUES clause
+      tagsQuery.append(SQL`
+        INSERT INTO INSC_TAG_L (TAG_ID, TAG)
+        SELECT t.id, t.tag FROM (
+      `);
+
+      inputData.tags.forEach((tag, index) => {
+        if (index > 0) tagsQuery.append(SQL` UNION ALL `);
+        tagsQuery.append(
+          SQL`SELECT ${uuid4().toString()} AS id, ${tag} AS tag`
+        );
+      });
+
+      tagsQuery.append(SQL`
+        ) AS t
+        LEFT JOIN INSC_TAG_L d ON d.TAG = t.tag
         WHERE d.TAG IS NULL
-      )
-      INSERT INTO INSC_TAG_L (TAG)
-      SELECT TAG
-      FROM TO_INSERT;
-    `);
+      `);
+    }
 
     const providerTagMapQueries: SQLStatement[] = inputData.tags.map((tag) => {
       return SQL`
-        INSERT INTO INSC_PROVIDER_TAG_MAP_L (PROVIDER_ID, TAG_ID)
-        SELECT ${providerId}, TAG_ID
+        INSERT INTO INSC_PROVIDER_TAG_MAP_L (MAP_ID, PROVIDER_ID, TAG_ID)
+        SELECT ${uuid4().toString()}, ${providerId}, TAG_ID
         FROM INSC_TAG_L
         WHERE TAG = ${tag};
       `;
@@ -153,7 +160,7 @@ export class ProviderDAO {
   async getSubscriberCount(providerId: string) {
     const query = SQL`
       SELECT COUNT(*)
-      FROM INSC_PROVIDER_TAG_MAP_L
+      FROM INSC_SUBSCRIPTION_L
       WHERE PROVIDER_ID = ${providerId}
     `;
 

@@ -35,14 +35,20 @@ export class EventService {
   }
 
   private create2DayIntervalCron(schedule: string): string {
-    const parts = schedule.trim().split(/\s+/);
-    const [minute, hour, dayOfMonth, month, dayOfWeekStr] = parts;
-    let dayOfWeek = parseInt(dayOfWeekStr, 10);
-    if (dayOfWeek === 7) {
-      dayOfWeek = 0;
-    }
-    const intervals = [2, 4, 6].map((offset) => (dayOfWeek + offset) % 7);
+    const cronBody = schedule.replace(/^cron\(|\)$/g, ""); 
+    const [minute, hour, , month, dayOfWeekStr] = cronBody.trim().split(/\s+/);
+
+    const dayOfWeeks = dayOfWeekStr.split(",").map((d) => {
+      const n = parseInt(d, 10);
+      return n === 7 ? 0 : n; 
+    });
+
+    const baseDay = dayOfWeeks[0];
+    const intervals = [0, 2, 4].map((offset) => (baseDay + offset) % 7);
     const newDayOfWeek = intervals.join(",");
-    return `${minute} ${hour} ${dayOfMonth} ${month} ${newDayOfWeek}`;
+
+    const newCron = `cron(${minute} ${hour} ? ${month} ${newDayOfWeek} *)`;
+    console.log(newCron);
+    return newCron;
   }
 }
