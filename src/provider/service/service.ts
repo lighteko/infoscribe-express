@@ -20,6 +20,10 @@ export class ProviderService {
   async getAllProviders() {
     return this.dao.getAllProviders();
   }
+  
+  async getAllProvidersOfUser(userId: string) {
+    return this.dao.getAllProvidersOfUser(userId);
+  }
 
   async getProvider(providerId: string) {
     return this.dao.getProvider(providerId);

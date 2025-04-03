@@ -19,12 +19,12 @@ export class CreateSubscriptionDTO {
 @DataClass()
 export class GetProviderResponseDTO {
   providerId!: string;
-  userId!: string;
   title!: string;
+  summary!: string;
   schedule!: string;
   locale!: string;
   tags!: string[];
-  createdDate!: Date;
+  subscribers!: number;
 }
 
 @DataClass()

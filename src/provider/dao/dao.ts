@@ -88,12 +88,11 @@ export class ProviderDAO {
     const subscriptionId = uuid4().toString();
     const query = SQL`
       INSERT INTO INSC_SUBSCRIPTION_L
-        (SUBSCRIPTION_ID, USER_ID, PROVIDER_ID, CREA_DT)
+        (SUBSCRIPTION_ID, USER_ID, PROVIDER_ID)
       VALUES (
         ${subscriptionId},
         ${inputData.userId},
-        ${inputData.providerId},
-        CURRENT_TIMESTAMP
+        ${inputData.providerId}
       )
     `;
 
@@ -107,10 +106,11 @@ export class ProviderDAO {
       SELECT 
         p.PROVIDER_ID AS providerId,
         p.USER_ID AS userId,
-        p.title AS title,
+        p.TITLE AS title,
+        p.SUMMARY AS summary,
         p.SCHEDULE AS schedule,
         p.LOCALE AS locale,
-        JSON_ARRAYAGG(t.NAME) AS categories, 
+        JSON_ARRAYAGG(t.TAG) AS tags, 
         p.CREA_DT AS createdDate
       FROM INSC_PROVIDER_L p
       LEFT JOIN INSC_PROVIDER_TAG_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
@@ -124,13 +124,38 @@ export class ProviderDAO {
     return rows;
   }
 
+  async getAllProvidersOfUser(userId: string) {
+    const query = SQL`
+      SELECT 
+        p.PROVIDER_ID AS providerId,
+        p.TITLE AS title,
+        p.SCHEDULE AS schedule,
+        p.SUMMARY AS summary,
+        p.LOCALE AS locale,
+        JSON_ARRAYAGG(t.TAG) AS tags, 
+        COUNT(s.USER_ID) AS subscribers
+      FROM INSC_PROVIDER_L p
+      LEFT JOIN INSC_PROVIDER_TAG_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
+      LEFT JOIN INSC_TAG_L t ON t.TAG_ID = map.TAG_ID
+      LEFT JOIN INSC_SUBSCRIPTION_L s ON p.PROVIDER_ID = s.PROVIDER_ID
+      WHERE p.USER_ID = ${userId}
+      GROUP BY p.PROVIDER_ID
+    `;
+
+    const cursor = this.db.cursor();
+    const rows = await cursor.fetchAll(query);
+
+    return rows;
+  }
+
   async getProvider(providerId: string) {
     const query = SQL`
       SELECT 
         p.PROVIDER_ID AS providerId,
-        p.USER_ID AS userId,
-        p.title AS title,
+        p.USER_ID AS creator,
+        p.TITLE AS title,
         p.SCHEDULE AS schedule,
+        p.SUMMARY AS summary,
         p.LOCALE AS locale,
         JSON_ARRAYAGG(t.TAG) AS tags, 
         p.CREA_DT AS createdDate

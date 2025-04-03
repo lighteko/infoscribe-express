@@ -52,9 +52,10 @@ export class GetAllProvidersController {
     this.service = new ProviderService();
   }
 
-  get = async (_: Request, res: Response) => {
+  get = async (req: Request, res: Response) => {
     try {
-      const response = await this.service.getAllProviders();
+      const user = (req as any).user;
+      const response = await this.service.getAllProvidersOfUser(user.userId);
       send(res, 200, response, GetAllProvidersResponseDTO);
     } catch (e: any) {
       abort(res, 500, String(e));
