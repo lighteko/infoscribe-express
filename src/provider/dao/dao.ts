@@ -133,7 +133,7 @@ export class ProviderDAO {
         p.SUMMARY AS summary,
         p.LOCALE AS locale,
         JSON_ARRAYAGG(t.TAG) AS tags, 
-        COUNT(s.USER_ID) AS subscribers
+        COUNT(DISTINCT s.USER_ID) AS subscribers
       FROM INSC_PROVIDER_L p
       LEFT JOIN INSC_PROVIDER_TAG_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
       LEFT JOIN INSC_TAG_L t ON t.TAG_ID = map.TAG_ID
