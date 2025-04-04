@@ -4,10 +4,10 @@ import { abort, send } from "@src/output";
 import { serialize } from "ts-data-object";
 import {
   CreateProviderDTO,
-  CreateSubscriptionDTO,
   GetAllProvidersResponseDTO,
   GetProviderResponseDTO,
 } from "@provider/dto/dto";
+import { CreateSubscriptionDTO } from "@subscription/dto/dto";
 
 export class ProviderController {
   service: ProviderService;

@@ -11,12 +11,6 @@ export class CreateProviderDTO {
 }
 
 @DataClass()
-export class CreateSubscriptionDTO {
-  providerId!: string;
-  userId!: string;
-}
-
-@DataClass()
 export class GetProviderResponseDTO {
   providerId!: string;
   title!: string;
@@ -40,9 +34,4 @@ export class ProviderRoutineDTO {
   schedule!: string;
   locale!: string;
   tags!: string[];
-}
-
-@DataClass()
-export class GetSubscriptionDTO {
-  providerId!: string;
 }

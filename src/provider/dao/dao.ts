@@ -1,7 +1,8 @@
 import DB from "@lib/infra/mysql";
 import SQL, { SQLStatement } from "sql-template-strings";
-import { CreateProviderDTO, CreateSubscriptionDTO } from "@provider/dto/dto";
+import { CreateProviderDTO } from "@provider/dto/dto";
 import { v4 as uuid4 } from "uuid";
+import { CreateSubscriptionDTO } from "@subscription/dto/dto";
 
 export class ProviderDAO {
   db: DB;
@@ -84,23 +85,6 @@ export class ProviderDAO {
     return providerId;
   }
 
-  async createSubscription(inputData: CreateSubscriptionDTO) {
-    const subscriptionId = uuid4().toString();
-    const query = SQL`
-      INSERT INTO INSC_SUBSCRIPTION_L
-        (SUBSCRIPTION_ID, USER_ID, PROVIDER_ID)
-      VALUES (
-        ${subscriptionId},
-        ${inputData.userId},
-        ${inputData.providerId}
-      )
-    `;
-
-    const cursor = this.db.cursor();
-    await cursor.execute(query);
-    return subscriptionId;
-  }
-
   async getAllProviders() {
     const query = SQL`
       SELECT 
@@ -113,8 +97,8 @@ export class ProviderDAO {
         JSON_ARRAYAGG(t.TAG) AS tags, 
         p.CREA_DT AS createdDate
       FROM INSC_PROVIDER_L p
-      LEFT JOIN INSC_PROVIDER_TAG_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
-      LEFT JOIN INSC_TAG_L t ON t.TAG_ID = map.TAG_ID
+      LEFT JOIN INSC_PROVIDER_TAG_MAP_L m ON p.PROVIDER_ID = m.PROVIDER_ID
+      LEFT JOIN INSC_TAG_L t ON t.TAG_ID = m.TAG_ID
       GROUP BY p.PROVIDER_ID
     `;
 
@@ -132,11 +116,17 @@ export class ProviderDAO {
         p.SCHEDULE AS schedule,
         p.SUMMARY AS summary,
         p.LOCALE AS locale,
-        JSON_ARRAYAGG(t.TAG) AS tags, 
+        (
+          SELECT JSON_ARRAYAGG(tag.TAG)
+          FROM (
+            SELECT DISTINCT t.TAG
+            FROM INSC_PROVIDER_TAG_MAP_L m
+            JOIN INSC_TAG_L t ON t.TAG_ID = m.TAG_ID
+            WHERE m.PROVIDER_ID = p.PROVIDER_ID
+          ) tag
+        ) AS tags,
         COUNT(DISTINCT s.USER_ID) AS subscribers
       FROM INSC_PROVIDER_L p
-      LEFT JOIN INSC_PROVIDER_TAG_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
-      LEFT JOIN INSC_TAG_L t ON t.TAG_ID = map.TAG_ID
       LEFT JOIN INSC_SUBSCRIPTION_L s ON p.PROVIDER_ID = s.PROVIDER_ID
       WHERE p.USER_ID = ${userId}
       GROUP BY p.PROVIDER_ID
@@ -157,14 +147,19 @@ export class ProviderDAO {
         p.SCHEDULE AS schedule,
         p.SUMMARY AS summary,
         p.LOCALE AS locale,
-        JSON_ARRAYAGG(t.TAG) AS tags, 
+        (
+          SELECT JSON_ARRAYAGG(tag.TAG)
+          FROM (
+            SELECT DISTINCT t.TAG
+            FROM INSC_PROVIDER_TAG_MAP_L m
+            JOIN INSC_TAG_L t ON t.TAG_ID = m.TAG_ID
+            WHERE m.PROVIDER_ID = p.PROVIDER_ID
+          ) tag
+        ) AS tags, 
         COUNT(DISTINCT s.USER_ID) AS subscribers,
         p.CREA_DT AS createdDate
       FROM INSC_PROVIDER_L p
-      LEFT JOIN INSC_PROVIDER_TAG_MAP_L m ON p.PROVIDER_ID = m.PROVIDER_ID
-      LEFT JOIN INSC_TAG_L t ON t.TAG_ID = m.TAG_ID
       LEFT JOIN INSC_SUBSCRIPTION_L s ON p.PROVIDER_ID = s.PROVIDER_ID
-      LEFT JOIN INSC_USER_L u ON p.USER_ID = u.USER_ID
       WHERE p.PROVIDER_ID = ${providerId}
       GROUP BY p.PROVIDER_ID
     `;
@@ -175,14 +170,21 @@ export class ProviderDAO {
     return row;
   }
 
-  async deleteSubscription(subscriptionId: string) {
+  async createSubscription(inputData: CreateSubscriptionDTO) {
+    const subscriptionId = uuid4().toString();
     const query = SQL`
-      DELETE FROM INSC_SUBSCRIPTION_L
-      WHERE SUBSCRIPTION_ID = ${subscriptionId}
-    `;
+        INSERT INTO INSC_SUBSCRIPTION_L
+          (SUBSCRIPTION_ID, USER_ID, PROVIDER_ID)
+        VALUES (
+          ${subscriptionId},
+          ${inputData.userId},
+          ${inputData.providerId}
+        )
+      `;
 
     const cursor = this.db.cursor();
     await cursor.execute(query);
+    return subscriptionId;
   }
 
   async getSubscriberCount(providerId: string) {
@@ -195,17 +197,5 @@ export class ProviderDAO {
     const cursor = this.db.cursor();
     const res = await cursor.fetchOne(query);
     return res as unknown as number;
-  }
-
-  async getSubscription(subscriptionId: string) {
-    const query = SQL`
-      SELECT *
-      FROM INSC_SUBSCRIPTION_L
-      WHERE SUBSCRIPTION_ID = ${subscriptionId}
-    `;
-
-    const cursor = this.db.cursor();
-    const row = await cursor.fetchOne(query);
-    return row;
   }
 }

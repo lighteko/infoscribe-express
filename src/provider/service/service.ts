@@ -1,12 +1,11 @@
 import { ProviderDAO } from "@provider/dao/dao";
 import {
   CreateProviderDTO,
-  CreateSubscriptionDTO,
-  GetSubscriptionDTO,
   ProviderRoutineDTO,
 } from "@provider/dto/dto";
-import { EventService } from "./event-service";
+import { EventService } from "@common/event-service";
 import { serialize } from "ts-data-object";
+import { CreateSubscriptionDTO } from "@subscription/dto/dto";
 
 export class ProviderService {
   dao: ProviderDAO;
@@ -50,17 +49,5 @@ export class ProviderService {
         ...inputData,
       });
     }
-  }
-
-  async deleteSubscription(subscriptionId: string) {
-    const packet = await this.dao.getSubscription(subscriptionId);
-    const subscription = await serialize(GetSubscriptionDTO, packet!);
-    const subscribers = await this.dao.getSubscriberCount(
-      subscription.providerId
-    );
-    if (subscribers === 1) {
-      await this.event.killProviderRoutine(subscription.providerId);
-    }
-    await this.dao.deleteSubscription(subscriptionId);
   }
 }
