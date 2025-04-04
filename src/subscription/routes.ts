@@ -8,6 +8,7 @@ export default function subscriptionRoutes() {
   const subscriptionController = new SubscriptionController();
 
   router.get("/", authenticate, subscriptionController.get);
+  router.post("/", authenticate, subscriptionController.post);
   router.delete("/", authenticate, subscriptionController.delete);
 
   return router;
