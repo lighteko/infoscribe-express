@@ -34,9 +34,9 @@ export class SubscriptionService {
     return data;
   }
 
-  async deleteSubscription(subscriptionId: string) {
-    const packet = await this.dao.getSubscription(subscriptionId);
-    const { providerId, subscribers } = await serialize(
+  async deleteSubscription(providerId: string, userId: string) {
+    const packet = await this.dao.getSubscription(providerId, userId);
+    const { subscriptionId, subscribers } = await serialize(
       GetSubscriptionDTO,
       packet!
     );

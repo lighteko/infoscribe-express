@@ -27,14 +27,15 @@ export class SubscriptionDAO {
     return subscriptionId;
   }
 
-  async getSubscription(subscriptionId: string) {
+  async getSubscription(providerId: string, userId: string) {
     const query = SQL`
       SELECT
-        p.PROVIDER_ID AS providerId,
+        s.SUBSCRIPTION_ID AS subscriptionId,
         COUNT(DISTINCT s.USER_ID) AS subscribers
       FROM INSC_SUBSCRIPTION_L s
       LEFT JOIN INSC_PROVIDER_L p ON s.PROVIDER_ID = p.PROVIDER_ID
-      WHERE s.SUBSCRIPTION_ID = ${subscriptionId}
+      WHERE s.PROVIDER_ID = ${providerId} 
+      AND s.USER_ID = ${userId}
     `;
 
     const cursor = this.db.cursor();
@@ -70,7 +71,7 @@ export class SubscriptionDAO {
     const rows = await cursor.fetchAll(query);
     return rows;
   }
-  
+
   async deleteSubscription(subscriptionId: string) {
     const query = SQL`
       DELETE FROM INSC_SUBSCRIPTION_L

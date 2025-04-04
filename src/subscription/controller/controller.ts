@@ -39,8 +39,9 @@ export class SubscriptionController {
 
   delete = async (req: Request, res: Response) => {
     try {
-      const subscriptionId = req.query.subscriptionId as string;
-      await this.service.deleteSubscription(subscriptionId);
+      const providerId = req.query.providerId as string;
+      const user = (req as any).user;
+      await this.service.deleteSubscription(providerId, user.userId);
       send(res, 200, { message: "Subscription deleted successfully." });
     } catch (e: any) {
       abort(res, 500, String(e));

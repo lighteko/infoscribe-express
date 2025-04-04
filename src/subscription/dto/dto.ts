@@ -8,7 +8,7 @@ export class CreateSubscriptionDTO {
 
 @DataClass()
 export class GetSubscriptionDTO {
-  providerId!: string;
+  subscriptionId!: string;
   subscribers!: number;
 }
 
