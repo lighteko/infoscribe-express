@@ -63,7 +63,7 @@ export class SubscriptionDAO {
       FROM INSC_SUBSCRIPTION_L s
       LEFT JOIN INSC_PROVIDER_L p ON s.PROVIDER_ID = p.PROVIDER_ID
       WHERE s.USER_ID = ${userId}
-      GROUP BY s.PROVIDER_ID
+      GROUP BY s.SUBSCRIPTION_ID
     `;
 
     const cursor = this.db.cursor();
