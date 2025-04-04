@@ -7,7 +7,6 @@ import {
   GetAllProvidersResponseDTO,
   GetProviderResponseDTO,
 } from "@provider/dto/dto";
-import { CreateSubscriptionDTO } from "@subscription/dto/dto";
 
 export class ProviderController {
   service: ProviderService;
@@ -57,24 +56,6 @@ export class GetAllProvidersController {
       const user = (req as any).user;
       const response = await this.service.getAllProvidersOfUser(user.userId);
       send(res, 200, response, GetAllProvidersResponseDTO);
-    } catch (e: any) {
-      abort(res, 500, String(e));
-    }
-  };
-}
-
-export class CreateSubscriptionController {
-  service: ProviderService;
-
-  constructor() {
-    this.service = new ProviderService();
-  }
-
-  post = async (req: Request, res: Response) => {
-    try {
-      const serialized = await serialize(CreateSubscriptionDTO, req.body);
-      await this.service.createSubscription(serialized);
-      send(res, 201, { message: "Subscription created successfully" });
     } catch (e: any) {
       abort(res, 500, String(e));
     }

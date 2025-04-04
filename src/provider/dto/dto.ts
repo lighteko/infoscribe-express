@@ -1,4 +1,4 @@
-import { DataClass } from "ts-data-object";
+import { DataClass, IsOptional } from "ts-data-object";
 
 @DataClass()
 export class CreateProviderDTO {
@@ -34,4 +34,5 @@ export class ProviderRoutineDTO {
   schedule!: string;
   locale!: string;
   tags!: string[];
+  subscribers!: number;
 }

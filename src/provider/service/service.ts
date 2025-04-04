@@ -34,20 +34,4 @@ export class ProviderService {
     const routineData = await serialize(ProviderRoutineDTO, provider!);
     await this.event.publishProviderRoutine(routineData);
   }
-
-  async createSubscription(inputData: CreateSubscriptionDTO) {
-    const subscribers = await this.dao.getSubscriberCount(inputData.providerId);
-    await this.dao.createSubscription(inputData);
-    if (subscribers === 0) {
-      const packet = await this.dao.getProvider(inputData.providerId);
-      const provider = await serialize(ProviderRoutineDTO, packet!);
-      await this.event.publishProviderRoutine({
-        title: provider.title,
-        schedule: provider.schedule,
-        locale: provider.locale,
-        tags: provider.tags,
-        ...inputData,
-      });
-    }
-  }
 }

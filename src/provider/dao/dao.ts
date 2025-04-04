@@ -2,7 +2,6 @@ import DB from "@lib/infra/mysql";
 import SQL, { SQLStatement } from "sql-template-strings";
 import { CreateProviderDTO } from "@provider/dto/dto";
 import { v4 as uuid4 } from "uuid";
-import { CreateSubscriptionDTO } from "@subscription/dto/dto";
 
 export class ProviderDAO {
   db: DB;
@@ -160,6 +159,7 @@ export class ProviderDAO {
         p.CREA_DT AS createdDate
       FROM INSC_PROVIDER_L p
       LEFT JOIN INSC_SUBSCRIPTION_L s ON p.PROVIDER_ID = s.PROVIDER_ID
+      LEFT JOIN INSC_USER_L u ON p.USER_ID = u.USER_ID
       WHERE p.PROVIDER_ID = ${providerId}
       GROUP BY p.PROVIDER_ID
     `;
@@ -168,34 +168,5 @@ export class ProviderDAO {
     const row = await cursor.fetchOne(query);
 
     return row;
-  }
-
-  async createSubscription(inputData: CreateSubscriptionDTO) {
-    const subscriptionId = uuid4().toString();
-    const query = SQL`
-        INSERT INTO INSC_SUBSCRIPTION_L
-          (SUBSCRIPTION_ID, USER_ID, PROVIDER_ID)
-        VALUES (
-          ${subscriptionId},
-          ${inputData.userId},
-          ${inputData.providerId}
-        )
-      `;
-
-    const cursor = this.db.cursor();
-    await cursor.execute(query);
-    return subscriptionId;
-  }
-
-  async getSubscriberCount(providerId: string) {
-    const query = SQL`
-      SELECT COUNT(*)
-      FROM INSC_SUBSCRIPTION_L
-      WHERE PROVIDER_ID = ${providerId}
-    `;
-
-    const cursor = this.db.cursor();
-    const res = await cursor.fetchOne(query);
-    return res as unknown as number;
   }
 }

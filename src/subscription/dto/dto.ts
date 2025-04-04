@@ -25,4 +25,5 @@ class SubscriptionDTO {
   schedule!: string;
   summary!: string;
   tags!: string[];
+  subscriptionDate!: Date;
 }

@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  CreateSubscriptionController,
   GetAllProvidersController,
   ProviderController,
 } from "@provider/controller/controller";
@@ -11,12 +10,10 @@ export default function providerRoutes() {
 
   const providerController = new ProviderController();
   const getAllProvidersController = new GetAllProvidersController();
-  const createSubscriptionController = new CreateSubscriptionController();
 
   router.get("/", authenticate, providerController.get);
   router.get("/all", authenticate, getAllProvidersController.get);
   router.post("/create", authenticate, providerController.post);
-  router.post("/subscribe", authenticate, createSubscriptionController.post);
 
   return router;
 }
