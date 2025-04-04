@@ -20,7 +20,7 @@ export class ProviderService {
   async getAllProviders() {
     return this.dao.getAllProviders();
   }
-  
+
   async getAllProvidersOfUser(userId: string) {
     return this.dao.getAllProvidersOfUser(userId);
   }
