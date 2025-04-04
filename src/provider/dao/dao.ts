@@ -152,16 +152,19 @@ export class ProviderDAO {
     const query = SQL`
       SELECT 
         p.PROVIDER_ID AS providerId,
-        p.USER_ID AS creator,
+        u.USERNAME AS creator,
         p.TITLE AS title,
         p.SCHEDULE AS schedule,
         p.SUMMARY AS summary,
         p.LOCALE AS locale,
         JSON_ARRAYAGG(t.TAG) AS tags, 
+        COUNT(DISTINCT s.USER_ID) AS subscribers,
         p.CREA_DT AS createdDate
       FROM INSC_PROVIDER_L p
-      LEFT JOIN INSC_PROVIDER_TAG_MAP_L map ON p.PROVIDER_ID = map.PROVIDER_ID
-      LEFT JOIN INSC_TAG_L t ON t.TAG_ID = map.TAG_ID
+      LEFT JOIN INSC_PROVIDER_TAG_MAP_L m ON p.PROVIDER_ID = m.PROVIDER_ID
+      LEFT JOIN INSC_TAG_L t ON t.TAG_ID = m.TAG_ID
+      LEFT JOIN INSC_SUBSCRIPTION_L s ON p.PROVIDER_ID = s.PROVIDER_ID
+      LEFT JOIN INSC_USER_L u ON p.USER_ID = u.USER_ID
       WHERE p.PROVIDER_ID = ${providerId}
       GROUP BY p.PROVIDER_ID
     `;
