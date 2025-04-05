@@ -167,3 +167,21 @@ export class PasswordResetController {
     }
   };
 }
+
+export class UserController {
+  service: AuthService;
+
+  constructor() {
+    this.service = new AuthService();
+  }
+
+  delete = async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+      await this.service.deleteUser(user.userId);
+      send(res, 200, { message: "User removed successfully" });
+    } catch (e: any) {
+      abort(res, 500, String(e));
+    }
+  };
+}

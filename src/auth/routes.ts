@@ -6,6 +6,7 @@ import {
   SignupController,
   EmailVerificationController,
   PasswordResetController,
+  UserController,
 } from "@auth/controller/controller";
 import { authenticate } from "@src/middlewares/authentication";
 
@@ -18,6 +19,7 @@ export default function authRoutes() {
   const logoutController = new LogoutController();
   const emailVerificationController = new EmailVerificationController();
   const passwordResetController = new PasswordResetController();
+  const userController = new UserController();
 
   // Public routes - no authentication needed
   router.post("/signup", signupController.post);
@@ -29,5 +31,6 @@ export default function authRoutes() {
 
   // Protected routes - require authentication
   router.post("/logout", authenticate, logoutController.post);
+  router.delete("/me", authenticate, userController.delete);
   return router;
 }

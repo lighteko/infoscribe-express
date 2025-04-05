@@ -45,6 +45,56 @@ export class AuthDAO {
     await cursor.execute(query);
   }
 
+  async deleteUser(userId: string) {
+    const emailQuery = SQL`
+      DELETE FROM INSC_PENDING_EMAIL_L
+      WHERE USER_ID = ${userId}
+    `;
+
+    const emailTokenQuery = SQL`
+      DELETE FROM INSC_EMAIL_TOKEN_L
+      WHERE USER_ID = ${userId}
+    `;
+
+    const refreshTokenQuery = SQL`
+      DELETE FROM INSC_REFRESH_TOKEN_L
+      WHERE USER_ID = ${userId}
+    `;
+
+    const tagQuery = SQL`
+      DELETE m
+      FROM INSC_PROVIDER_TAG_MAP_L m
+      JOIN INSC_PROVIDER_L p ON m.PROVIDER_ID = p.PROVIDER_ID
+      WHERE p.USER_ID = ${userId}
+    `;
+
+    const subscriptionQuery = SQL`
+      DELETE FROM INSC_SUBSCRIPTION_L
+      WHERE USER_ID = ${userId}
+    `;
+
+    const providerQuery = SQL`
+      DELETE FROM INSC_PROVIDER_L
+      WHERE USER_ID = ${userId}
+    `;
+
+    const userQuery = SQL`
+      DELETE FROM INSC_USER_L
+      WHERE USER_ID = ${userId}
+    `;
+
+    const cursor = this.db.cursor();
+    await cursor.execute(
+      emailQuery,
+      emailTokenQuery,
+      refreshTokenQuery,
+      tagQuery,
+      subscriptionQuery,
+      providerQuery,
+      userQuery
+    );
+  }
+
   async activateUser(userId: string) {
     const query = SQL`
     UPDATE INSC_USER_L
