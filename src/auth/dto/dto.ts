@@ -42,9 +42,6 @@ export class UpdateUserRequestDTO {
   username!: string;
   firstName!: string;
   lastName!: string;
-  email!: string;
-  pwd!: string;
-  isVerified!: boolean;
 }
 
 @DataClass()
@@ -71,4 +68,13 @@ export class UserPayloadDTO {
   email!: string;
   pwd!: string;
   isVerified!: string;
+}
+
+@DataClass()
+export class GetUserResponseDTO {
+  username!: string;
+  firstName!: string;
+  lastName!: string;
+  email!: string;
+  plan!: string;
 }

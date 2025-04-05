@@ -6,6 +6,8 @@ import {
   PasswordResetRequestDTO,
   PasswordResetValidationDTO,
   SignUpRequestDTO,
+  UpdateUserRequestDTO,
+  GetUserResponseDTO,
 } from "@auth/dto/dto";
 
 export class SignupController {
@@ -126,7 +128,7 @@ export class EmailVerificationController {
       const response = await this.service.handleEmailVerification(token);
       sendTokens(res, response, { message: "Email verified successfully" });
     } catch (e: any) {
-      abort(res, 500, String(e));
+      abort(res, 400, "Wrong or expired token");
     }
   };
 }
@@ -175,11 +177,35 @@ export class UserController {
     this.service = new AuthService();
   }
 
+  get = async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+      const packet = await this.service.getUser(user.userId);
+      send(res, 200, packet, GetUserResponseDTO);
+    } catch (e: any) {
+      abort(res, 500, String(e));
+    }
+  };
+
+  put = async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+      const inputData = await serialize(UpdateUserRequestDTO, {
+        userId: user.userId,
+        ...req.body,
+      });
+      await this.service.updateUser(inputData);
+      send(res, 200, { message: "Account updated successfully" });
+    } catch (e: any) {
+      abort(res, 500, String(e));
+    }
+  };
+
   delete = async (req: Request, res: Response) => {
     try {
       const user = (req as any).user;
       await this.service.deleteUser(user.userId);
-      send(res, 200, { message: "User removed successfully" });
+      clearRefreshToken(res, "Account removed successfully");
     } catch (e: any) {
       abort(res, 500, String(e));
     }

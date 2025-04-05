@@ -12,17 +12,19 @@ export class AuthDAO {
   async createUser(inputData: SignUpRequestDTO) {
     const userId = uuid4().toString();
     const query = SQL`
-      INSERT INTO INSC_USER_L
-        (USER_ID, USERNAME, FIRST_NM, LAST_NM, PASSWRD, EMAIL, IS_VERIFIED)
-      VALUES (
-        ${userId}, 
-        ${inputData.username}, 
-        ${inputData.firstName}, 
+      INSERT INTO INSC_USER_L 
+        (USER_ID, USERNAME, FIRST_NM, LAST_NM, PASSWRD, EMAIL, IS_VERIFIED, PLAN_ID)
+      SELECT
+        ${userId},
+        ${inputData.username},
+        ${inputData.firstName},
         ${inputData.lastName},
         ${inputData.pwd},
         ${inputData.email},
-        FALSE
-      )
+        FALSE,
+        PLAN_ID
+      FROM INSC_PLANS_M
+      WHERE TITLE = 'Free'
     `;
     const cursor = this.db.cursor();
     await cursor.execute(query);
@@ -35,9 +37,6 @@ export class AuthDAO {
       SET USERNAME = ${inputData.username},
           FIRST_NM = ${inputData.firstName},
           LAST_NM = ${inputData.lastName},
-          PASSWRD = ${inputData.pwd},
-          EMAIL = ${inputData.email},
-          IS_VERIFIED = ${inputData.isVerified}
       WHERE USER_ID = ${inputData.userId}
     `;
 
@@ -245,6 +244,24 @@ export class AuthDAO {
     WHERE t.TOKEN = ${token}
       AND t.CREA_DT >= NOW() - INTERVAL 10 MINUTE
       AND NOT t.IS_USED;
+    `;
+
+    const cursor = this.db.cursor();
+    const row = await cursor.fetchOne(query);
+    return row;
+  }
+
+  async getUserById(userId: string) {
+    const query = SQL`
+      SELECT 
+        u.USERNAME AS username,
+        u.FIRST_NM AS firstName,
+        u.LAST_NM AS lastName,
+        u.EMAIL AS email,
+        p.TITLE AS plan 
+      FROM INSC_USER_L u
+      LEFT JOIN INSC_PLANS_M p ON p.PLAN_ID = u.PLAN_ID
+      WHERE USER_ID = ${userId}
     `;
 
     const cursor = this.db.cursor();

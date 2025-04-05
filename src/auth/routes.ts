@@ -31,6 +31,8 @@ export default function authRoutes() {
 
   // Protected routes - require authentication
   router.post("/logout", authenticate, logoutController.post);
+  router.get("/me", authenticate, userController.get);
+  router.put("/me", authenticate, userController.put);
   router.delete("/me", authenticate, userController.delete);
   return router;
 }
