@@ -10,6 +10,7 @@ import initLogger from "@src/logger";
 import providerRoutes from "@provider/routes";
 import letterRoutes from "@letter/routes";
 import authRoutes from "@auth/routes";
+import subscriptionRoutes from "@subscription/routes";
 import { authenticate } from "@src/middlewares/authentication";
 import Tokens from "@lib/infra/tokens";
 
@@ -72,6 +73,7 @@ function createApp() {
   // Protected routes
   app.use("/provider", authenticate, providerRoutes());
   app.use("/letter", authenticate, letterRoutes());
+  app.use("/subscription", authenticate, subscriptionRoutes());
 
   return app;
 }

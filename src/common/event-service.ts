@@ -1,5 +1,5 @@
 import EventBridge from "@lib/infra/bridge";
-import { ProviderRoutineDTO } from "../dto/dto";
+import { ProviderRoutineDTO } from "@provider/dto/dto";
 
 export class EventService {
   bridge: EventBridge;

@@ -22,7 +22,9 @@
       "@user/*": ["src/user/*"],
       "@provider/*": ["src/provider/*"],
       "@letter/*": ["src/letter/*"],
-      "@auth/*": ["src/auth/*"]
+      "@auth/*": ["src/auth/*"],
+      "@subscription/*": ["src/subscription/*"],
+      "@common/*": ["src/common/*"]
     },
     "outDir": "./dist",
     "experimentalDecorators": true

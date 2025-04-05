@@ -214,4 +214,8 @@ export class AuthService {
 
     return { isValid, message };
   }
+
+  async deleteUser(userId: string) {
+    await this.dao.deleteUser(userId);
+  }
 }
