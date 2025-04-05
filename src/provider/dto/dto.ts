@@ -1,4 +1,4 @@
-import { DataClass, IsOptional } from "ts-data-object";
+import { DataClass } from "ts-data-object";
 
 @DataClass()
 export class CreateProviderDTO {
