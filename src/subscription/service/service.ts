@@ -40,9 +40,9 @@ export class SubscriptionService {
       GetSubscriptionDTO,
       packet!
     );
+    await this.dao.deleteSubscription(subscriptionId);
     if (subscribers === 1) {
       await this.event.killProviderRoutine(providerId);
     }
-    await this.dao.deleteSubscription(subscriptionId);
   }
 }
