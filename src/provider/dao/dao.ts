@@ -90,11 +90,17 @@ export class ProviderDAO {
             WHERE m.PROVIDER_ID = p.PROVIDER_ID
           ) tag
         ) AS tags,
-        COUNT(DISTINCT s.USER_ID) AS subscribers
+        (
+          SELECT COUNT(*)
+          FROM INSC_SUBSCRIPTION_L
+          WHERE PROVIDER_ID = p.PROVIDER_ID
+        ) AS subscribers
       FROM INSC_PROVIDER_L p
-      LEFT JOIN INSC_SUBSCRIPTION_L s ON p.PROVIDER_ID = s.PROVIDER_ID AND s.USER_ID = ${userId}
-      WHERE p.USER_ID = ${userId} AND s.USER_ID IS NULL
-      GROUP BY p.PROVIDER_ID
+      LEFT JOIN INSC_SUBSCRIPTION_L s 
+        ON p.PROVIDER_ID = s.PROVIDER_ID 
+        AND s.USER_ID = ${userId}
+      WHERE s.USER_ID IS NULL
+      GROUP BY p.PROVIDER_ID;
     `;
 
     const cursor = this.db.cursor();
