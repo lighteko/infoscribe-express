@@ -16,7 +16,6 @@ export class GetProviderResponseDTO {
   title!: string;
   summary!: string;
   schedule!: string;
-  locale!: string;
   tags!: string[];
   subscribers!: number;
 }

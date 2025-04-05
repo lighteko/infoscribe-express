@@ -27,31 +27,21 @@ export class ProviderDAO {
 
     const tagsQuery = SQL``;
 
-    // Handle empty tags array
-    if (inputData.tags.length === 0) {
-      tagsQuery.append(SQL`
-        -- No tags to insert
-      `);
-    } else {
-      // Create a union-based approach instead of VALUES clause
-      tagsQuery.append(SQL`
+    tagsQuery.append(SQL`
         INSERT INTO INSC_TAG_L (TAG_ID, TAG)
         SELECT t.id, t.tag FROM (
       `);
 
-      inputData.tags.forEach((tag, index) => {
-        if (index > 0) tagsQuery.append(SQL` UNION ALL `);
-        tagsQuery.append(
-          SQL`SELECT ${uuid4().toString()} AS id, ${tag} AS tag`
-        );
-      });
+    inputData.tags.forEach((tag, index) => {
+      if (index > 0) tagsQuery.append(SQL` UNION ALL `);
+      tagsQuery.append(SQL`SELECT ${uuid4().toString()} AS id, ${tag} AS tag`);
+    });
 
-      tagsQuery.append(SQL`
+    tagsQuery.append(SQL`
         ) AS t
         LEFT JOIN INSC_TAG_L d ON d.TAG = t.tag
         WHERE d.TAG IS NULL
-      `);
-    }
+    `);
 
     const providerTagMapQueries: SQLStatement[] = inputData.tags.map((tag) => {
       return SQL`
@@ -84,26 +74,31 @@ export class ProviderDAO {
     return providerId;
   }
 
-  async getAllProviders() {
+  async getAllSubscribableProviders(userId: string) {
     const query = SQL`
-      SELECT 
+      SELECT
         p.PROVIDER_ID AS providerId,
-        p.USER_ID AS userId,
         p.TITLE AS title,
-        p.SUMMARY AS summary,
         p.SCHEDULE AS schedule,
-        p.LOCALE AS locale,
-        JSON_ARRAYAGG(t.TAG) AS tags, 
-        p.CREA_DT AS createdDate
+        p.SUMMARY AS summary,
+        (
+          SELECT JSON_ARRAYAGG(tag.TAG)
+          FROM (
+            SELECT DISTINCT t.TAG
+            FROM INSC_PROVIDER_TAG_MAP_L m
+            JOIN INSC_TAG_L t ON t.TAG_ID = m.TAG_ID
+            WHERE m.PROVIDER_ID = p.PROVIDER_ID
+          ) tag
+        ) AS tags,
+        COUNT(DISTINCT s.USER_ID) AS subscribers
       FROM INSC_PROVIDER_L p
-      LEFT JOIN INSC_PROVIDER_TAG_MAP_L m ON p.PROVIDER_ID = m.PROVIDER_ID
-      LEFT JOIN INSC_TAG_L t ON t.TAG_ID = m.TAG_ID
+      LEFT JOIN INSC_SUBSCRIPTION_L s ON p.PROVIDER_ID = s.PROVIDER_ID AND s.USER_ID = ${userId}
+      WHERE p.USER_ID = ${userId} AND s.USER_ID IS NULL
       GROUP BY p.PROVIDER_ID
     `;
 
     const cursor = this.db.cursor();
     const rows = await cursor.fetchAll(query);
-
     return rows;
   }
 
@@ -114,7 +109,6 @@ export class ProviderDAO {
         p.TITLE AS title,
         p.SCHEDULE AS schedule,
         p.SUMMARY AS summary,
-        p.LOCALE AS locale,
         (
           SELECT JSON_ARRAYAGG(tag.TAG)
           FROM (
@@ -168,5 +162,30 @@ export class ProviderDAO {
     const row = await cursor.fetchOne(query);
 
     return row;
+  }
+
+  async deleteProvider(userId: string, providerId: string) {
+    const tagQuery = SQL`
+      DELETE m
+      FROM INSC_PROVIDER_TAG_MAP_L m
+      JOIN INSC_PROVIDER_L p ON m.PROVIDER_ID = p.PROVIDER_ID
+      WHERE p.PROVIDER_ID = ${providerId}
+      AND p.USER_ID = ${userId}
+    `;
+
+    const subscriptionQuery = SQL`
+      DELETE FROM INSC_SUBSCRIPTION_L
+      WHERE PROVIDER_ID = ${providerId}
+      AND USER_ID = ${userId}
+    `;
+
+    const providerQuery = SQL`
+      DELETE FROM INSC_PROVIDER_L
+      WHERE PROVIDER_ID = ${providerId}
+      AND USER_ID = ${userId}
+    `;
+
+    const cursor = this.db.cursor();
+    await cursor.execute(tagQuery, subscriptionQuery, providerQuery);
   }
 }

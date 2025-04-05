@@ -1,11 +1,7 @@
 import { ProviderDAO } from "@provider/dao/dao";
-import {
-  CreateProviderDTO,
-  ProviderRoutineDTO,
-} from "@provider/dto/dto";
+import { CreateProviderDTO, ProviderRoutineDTO } from "@provider/dto/dto";
 import { EventService } from "@common/event-service";
 import { serialize } from "ts-data-object";
-import { CreateSubscriptionDTO } from "@subscription/dto/dto";
 
 export class ProviderService {
   dao: ProviderDAO;
@@ -14,10 +10,6 @@ export class ProviderService {
   constructor() {
     this.dao = new ProviderDAO();
     this.event = new EventService();
-  }
-
-  async getAllProviders() {
-    return this.dao.getAllProviders();
   }
 
   async getAllProvidersOfUser(userId: string) {
@@ -33,5 +25,13 @@ export class ProviderService {
     const provider = await this.dao.getProvider(providerId);
     const routineData = await serialize(ProviderRoutineDTO, provider!);
     await this.event.publishProviderRoutine(routineData);
+  }
+
+  async getAllSubscribableProviders(userId: string) {
+    return this.dao.getAllSubscribableProviders(userId);
+  }
+
+  async deleteProvider(userId: string, providerId: string) {
+    return this.dao.deleteProvider(userId, providerId);
   }
 }

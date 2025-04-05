@@ -42,6 +42,17 @@ export class ProviderController {
       abort(res, 500, String(e));
     }
   };
+
+  delete = async (req: Request, res: Response) => {
+    try {
+      const providerId = req.query.providerId as string;
+      const user = (req as any).user;
+      await this.service.deleteProvider(user.userId, providerId);
+      send(res, 200, { message: "Provider removed successfully" });
+    } catch (e: any) {
+      abort(res, 500, String(e));
+    }
+  };
 }
 
 export class GetAllProvidersController {
@@ -55,6 +66,26 @@ export class GetAllProvidersController {
     try {
       const user = (req as any).user;
       const response = await this.service.getAllProvidersOfUser(user.userId);
+      send(res, 200, response, GetAllProvidersResponseDTO);
+    } catch (e: any) {
+      abort(res, 500, String(e));
+    }
+  };
+}
+
+export class GetAllSubscribableProviders {
+  service: ProviderService;
+
+  constructor() {
+    this.service = new ProviderService();
+  }
+
+  get = async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+      const response = await this.service.getAllSubscribableProviders(
+        user.userId
+      );
       send(res, 200, response, GetAllProvidersResponseDTO);
     } catch (e: any) {
       abort(res, 500, String(e));
