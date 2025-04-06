@@ -10,11 +10,12 @@ export class LetterDAO {
   }
 
   async createLetter(inputData: CreateLetterDTO) {
+    const letterId = uuid4().toString();
     const query = SQL`
       INSERT INTO INSC_LETTER_L
         (LETTER_ID, PROVIDER_ID, TITLE, S3_PATH)
       VALUES (
-        ${uuid4().toString()},
+        ${letterId},
         ${inputData.providerId},
         ${inputData.title},
         ${inputData.s3Path}
@@ -23,6 +24,8 @@ export class LetterDAO {
 
     const cursor = this.db.cursor();
     await cursor.execute(query);
+
+    return letterId;
   }
 
   async createDispatch(inputData: CreateDispatchDTO) {
@@ -67,5 +70,21 @@ export class LetterDAO {
 
     const cursor = this.db.cursor();
     await cursor.execute(query);
+  }
+
+  async getAllSubscribers(providerId: string) {
+    const query = SQL`
+      SELECT 
+        u.USER_ID AS userId,
+        u.EMAIL AS email
+      FROM INSC_SUBSCRIPTION_L s  
+      LEFT JOIN INSC_USER_L u ON s.USER_ID = u.USER_ID
+      WHERE s.PROVIDER_ID = ${providerId}
+    `;
+
+    const cursor = this.db.cursor();
+    const rows = await cursor.fetchAll(query);
+
+    return rows;
   }
 }

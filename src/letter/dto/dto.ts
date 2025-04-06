@@ -32,8 +32,6 @@ export class DispatchLetterDTO {
 
   title!: string;
   s3Path!: string;
-  letterId!: string;
-  userId!: string;
 
   @IsOptional()
   stage!: DispatchStage;

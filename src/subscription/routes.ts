@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { authenticate } from "@middlewares/authentication";
 import { SubscriptionController } from "./controller/controller";
 
 export default function subscriptionRoutes() {
@@ -7,9 +6,9 @@ export default function subscriptionRoutes() {
 
   const subscriptionController = new SubscriptionController();
 
-  router.get("/", authenticate, subscriptionController.get);
-  router.post("/subscribe", authenticate, subscriptionController.post);
-  router.delete("/unsubscribe", authenticate, subscriptionController.delete);
+  router.get("/", subscriptionController.get);
+  router.post("/subscribe", subscriptionController.post);
+  router.delete("/unsubscribe", subscriptionController.delete);
 
   return router;
 }
