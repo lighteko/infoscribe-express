@@ -29,7 +29,7 @@
     "outDir": "./dist",
     "experimentalDecorators": true
   },
-  "include": ["src/**/*.ts", "main.ts", "lib/**/*.ts"],
+  "include": ["src/**/*.ts", "main.ts", "lib/**/*.ts", "public/**/*.*"],
   "exclude": ["node_modules"],
   "tsc-alias": {
     "resolveFullPaths": true
