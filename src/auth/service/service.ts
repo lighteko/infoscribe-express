@@ -215,7 +215,15 @@ export class AuthService {
     return { isValid, message };
   }
 
+  async getUser(userId: string) {
+    return await this.dao.getUserById(userId);
+  }
+
   async deleteUser(userId: string) {
     await this.dao.deleteUser(userId);
+  }
+
+  async updateUser(inputData: UpdateUserRequestDTO) {
+    await this.dao.updateUser(inputData);
   }
 }

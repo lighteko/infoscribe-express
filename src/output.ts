@@ -54,7 +54,7 @@ export const sendTokens = (
   res.status(200).json({ data: responseData });
 };
 
-export function clearRefreshToken(res: Response) {
+export function clearRefreshToken(res: Response, message: string = "Log out succeeded") {
   const isProd = process.env.NODE_ENV === "production";
 
   // Only clear the refresh token cookie since access token is no longer stored as a cookie
@@ -65,7 +65,7 @@ export function clearRefreshToken(res: Response) {
     path: "/",
   });
 
-  res.status(200).send({ data: { message: "Log out succeeded" } });
+  res.status(200).send({ data: { message } });
 }
 
 export function abort(res: Response, code: number, description: string) {

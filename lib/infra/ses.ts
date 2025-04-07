@@ -70,17 +70,34 @@ class SES {
     subject: string,
     htmlBody: string
   ): Promise<void> {
+    if (!htmlBody) {
+      console.error("Empty HTML body, cannot send email");
+      throw new Error("Empty HTML body");
+    }
+
+    const htmlContent =
+      typeof htmlBody === "string"
+        ? htmlBody
+        : typeof htmlBody === "object"
+        ? JSON.stringify(htmlBody)
+        : String(htmlBody);
+
     const params = {
       Source: `'Infoscribe' <${SES.config.SES_FROM_ADDRESS}>`,
       Destination: { ToAddresses: [to] },
       Message: {
         Subject: { Data: subject },
-        Body: { Html: { Data: htmlBody } },
+        Body: { Html: { Data: htmlContent } },
       },
     };
 
-    const command = new SendEmailCommand(params);
-    await this.client.send(command);
+    try {
+      const command = new SendEmailCommand(params);
+      await this.client.send(command);
+    } catch (error) {
+      console.error("Failed to send email:", error);
+      throw error;
+    }
   }
 
   public loadTemplate(filename: string): string {
