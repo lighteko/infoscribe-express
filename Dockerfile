@@ -12,6 +12,4 @@ EXPOSE 8000
 
 RUN yarn build
 
-RUN yarn clean-path
-
 CMD ["yarn", "start"]
