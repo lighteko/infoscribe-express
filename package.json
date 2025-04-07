@@ -46,8 +46,9 @@
   },
   "scripts": {
     "start": "node dist/main.js",
-    "build": "tsc -p .",
+    "build": "tsc -p . && yarn clean-path && yarn copy-templates",
     "clean-path": "tsc-alias",
+    "copy-templates": "mkdir -p dist/public/templates && cp -r public/templates/* dist/public/templates/",
     "dev": "nodemon --watch \"src/**/*.ts\" --exec \"tsx\" ./main.ts"
   }
 }
