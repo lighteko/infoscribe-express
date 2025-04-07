@@ -1,7 +1,13 @@
 import { LetterDAO } from "@letter/dao/dao";
-import { DispatchLetterDTO } from "@letter/dto/dto";
+import {
+  DispatchLetterDTO,
+  GetLetterResponseDTO,
+  GetLettersResponseDTO,
+  GetUserInboxResponseDTO,
+} from "@letter/dto/dto";
 import SES from "@lib/infra/ses";
 import S3 from "@lib/infra/s3";
+import { serialize } from "ts-data-object";
 export class LetterService {
   dao: LetterDAO;
   ses: SES;
@@ -12,8 +18,20 @@ export class LetterService {
     this.s3 = S3.getInstance();
   }
 
+  async getAllLettersOfProvider(providerId: string) {
+    const packets = await this.dao.getAllLettersOfProvider(providerId);
+    const letters = await serialize(GetLettersResponseDTO, packets);
+
+    return letters;
+  }
+
   async getLetter(letterId: string) {
-    return this.dao.getLetter(letterId);
+    const packet = await this.dao.getLetter(letterId);
+    const letter = await serialize(GetLetterResponseDTO, packet);
+    const html = await this.s3.getObject(letter.s3Path);
+    letter.html = html;
+
+    return letter;
   }
 
   async dispatchLetter(inputData: DispatchLetterDTO) {
@@ -43,5 +61,12 @@ export class LetterService {
 
   async deleteDispatch(dispatchId: string) {
     this.dao.deleteDispatch(dispatchId);
+  }
+
+  async getUserInbox(userId: string) {
+    const packets = await this.dao.getUserInbox(userId);
+    const letters = await serialize(GetUserInboxResponseDTO, packets);
+
+    return letters;
   }
 }

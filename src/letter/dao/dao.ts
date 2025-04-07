@@ -44,11 +44,27 @@ export class LetterDAO {
     await cursor.execute(query);
   }
 
+  async getAllLettersOfProvider(providerId: string) {
+    const query = SQL`
+      SELECT 
+        LETTER_ID AS letterId,
+        TITLE AS title,
+        S3_PATH AS s3Path,
+        CREA_DT AS createdDate
+      FROM INSC_LETTER_L
+      WHERE PROVIDER_ID = ${providerId}
+    `;
+
+    const cursor = this.db.cursor();
+    const rows = await cursor.fetchAll(query);
+
+    return rows;
+  }
+
   async getLetter(letterId: string) {
     const query = SQL`
       SELECT 
         LETTER_ID AS letterId,
-        PROVIDER_ID AS providerId,
         TITLE AS title,
         S3_PATH AS s3Path,
         CREA_DT AS createdDate
@@ -80,6 +96,28 @@ export class LetterDAO {
       FROM INSC_SUBSCRIPTION_L s  
       LEFT JOIN INSC_USER_L u ON s.USER_ID = u.USER_ID
       WHERE s.PROVIDER_ID = ${providerId}
+    `;
+
+    const cursor = this.db.cursor();
+    const rows = await cursor.fetchAll(query);
+
+    return rows;
+  }
+
+  async getUserInbox(userId: string) {
+    const query = SQL`
+      SELECT 
+        p.PROVIDER_ID AS providerId,
+        p.TITLE AS providerTitle,
+        l.LETTER_ID AS letterId,
+        l.TITLE AS title,
+        l.S3_PATH AS s3Path,
+        l.CREA_DT AS createdDate
+      FROM INSC_LETTER_L l
+      LEFT JOIN INSC_LETTER_DISPATCH_L d ON l.LETTER_ID = d.LETTER_ID
+      LEFT JOIN INSC_PROVIDER_L p ON l.PROVIDER_ID = p.PROVIDER_ID
+      WHERE d.USER_ID = ${userId}
+      ORDER BY l.CREA_DT DESC
     `;
 
     const cursor = this.db.cursor();

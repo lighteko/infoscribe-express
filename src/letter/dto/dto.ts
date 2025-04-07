@@ -9,12 +9,25 @@ export class CreateLetterDTO {
 }
 
 @DataClass()
-export class GetLetterDTO {
+export class LetterDTO {
   letterId!: string;
-  providerId!: string;
   title!: string;
   s3Path!: string;
   createdDate!: Date;
+}
+
+@DataClass()
+export class GetLettersResponseDTO {
+  letters!: LetterDTO[];
+}
+
+@DataClass()
+export class GetLetterResponseDTO {
+  letterId!: string;
+  title!: string;
+  s3Path!: string;
+  createdDate!: Date;
+  html!: string;
 }
 
 @DataClass()
@@ -35,4 +48,19 @@ export class DispatchLetterDTO {
 
   @IsOptional()
   stage!: DispatchStage;
+}
+
+@DataClass()
+export class LetterInboxDTO {
+  providerId!: string;
+  providerTitle!: string;
+  letterId!: string;
+  title!: string;
+  s3Path!: string;
+  createdDate!: Date;
+}
+
+@DataClass()
+export class GetUserInboxResponseDTO {
+  letters!: LetterInboxDTO[];
 }
