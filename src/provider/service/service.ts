@@ -1,5 +1,9 @@
 import { ProviderDAO } from "@provider/dao/dao";
-import { CreateProviderDTO, ProviderRoutineDTO } from "@provider/dto/dto";
+import {
+  CreateProviderDTO,
+  ProviderRoutineDTO,
+  UpdateProviderDTO,
+} from "@provider/dto/dto";
 import { EventService } from "@common/event-service";
 import { serialize } from "ts-data-object";
 
@@ -29,6 +33,13 @@ export class ProviderService {
 
   async getAllSubscribableProviders(userId: string) {
     return this.dao.getAllSubscribableProviders(userId);
+  }
+
+  async updateProvider(inputData: UpdateProviderDTO) {
+    await this.dao.updateProvider(inputData);
+    const provider = await this.dao.getProvider(inputData.providerId);
+    const routineData = await serialize(ProviderRoutineDTO, provider!);
+    await this.event.updateProviderRoutine(routineData);
   }
 
   async deleteProvider(userId: string, providerId: string) {

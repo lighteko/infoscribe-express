@@ -12,10 +12,11 @@ export default function providerRoutes() {
   const getAllProvidersController = new GetAllProvidersController();
   const getAllSubscribableProviders = new GetAllSubscribableProviders();
 
-  router.get("/", providerController.get);
   router.get("/all", getAllProvidersController.get);
   router.get("/subscribable", getAllSubscribableProviders.get);
-  router.post("/create", providerController.post);
+  router.get("/", providerController.get);
+  router.post("/", providerController.post);
+  router.put("/", providerController.put);
   router.delete("/", providerController.delete);
 
   return router;

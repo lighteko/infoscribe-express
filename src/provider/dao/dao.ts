@@ -1,6 +1,6 @@
 import DB from "@lib/infra/mysql";
 import SQL, { SQLStatement } from "sql-template-strings";
-import { CreateProviderDTO } from "@provider/dto/dto";
+import { CreateProviderDTO, UpdateProviderDTO } from "@provider/dto/dto";
 import { v4 as uuid4 } from "uuid";
 
 export class ProviderDAO {
@@ -169,6 +169,21 @@ export class ProviderDAO {
     const row = await cursor.fetchOne(query);
 
     return row;
+  }
+
+  async updateProvider(inputData: UpdateProviderDTO) {
+    const query = SQL`
+      UPDATE INSC_PROVIDER_L
+      SET TITLE = ${inputData.title},
+          SUMMARY = ${inputData.summary},
+          SCHEDULE = ${inputData.schedule},
+          LOCALE = ${inputData.locale}
+      WHERE PROVIDER_ID = ${inputData.providerId} 
+        AND USER_ID = ${inputData.userId}
+    `;
+
+    const cursor = this.db.cursor();
+    await cursor.execute(query);
   }
 
   async deleteProvider(userId: string, providerId: string) {

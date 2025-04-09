@@ -1,5 +1,5 @@
 import EventBridge from "@lib/infra/bridge";
-import { ProviderRoutineDTO } from "@provider/dto/dto";
+import { ProviderRoutineDTO, UpdateProviderDTO } from "@provider/dto/dto";
 
 export class EventService {
   bridge: EventBridge;
@@ -40,6 +40,11 @@ export class EventService {
       { Mode: "OFF" },
       buildStartDate
     );
+  }
+
+  async updateProviderRoutine(inputData: ProviderRoutineDTO) {
+    await this.killProviderRoutine(inputData.providerId);
+    await this.publishProviderRoutine(inputData);
   }
 
   async killProviderRoutine(providerId: string) {
