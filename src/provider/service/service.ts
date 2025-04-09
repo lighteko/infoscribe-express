@@ -32,6 +32,7 @@ export class ProviderService {
   }
 
   async deleteProvider(userId: string, providerId: string) {
-    return this.dao.deleteProvider(userId, providerId);
+    await this.event.killProviderRoutine(providerId);
+    await this.dao.deleteProvider(userId, providerId);
   }
 }

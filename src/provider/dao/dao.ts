@@ -129,6 +129,7 @@ export class ProviderDAO {
       LEFT JOIN INSC_SUBSCRIPTION_L s ON p.PROVIDER_ID = s.PROVIDER_ID
       WHERE p.USER_ID = ${userId}
       GROUP BY p.PROVIDER_ID
+      ORDER BY p.CREA_DT DESC
     `;
 
     const cursor = this.db.cursor();
