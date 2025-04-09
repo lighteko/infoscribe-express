@@ -78,8 +78,8 @@ export class GetUserInboxController {
 
   get = async (req: Request, res: Response) => {
     try {
-      const userId = req.query.userId as string;
-      const response = await this.service.getUserInbox(userId);
+      const user = (req as any).user;
+      const response = await this.service.getUserInbox(user.userId);
       send(res, 200, { letters: response }, GetUserInboxResponseDTO);
     } catch (e: any) {
       abort(res, 500, String(e));
