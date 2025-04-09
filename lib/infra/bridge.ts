@@ -1,12 +1,12 @@
 import { Express } from "express";
-import * as bridge from "@aws-sdk/client-eventbridge";
+import * as scheduler from "@aws-sdk/client-scheduler";
 
 interface EventBridgeConfig {
   AWS_REGION: string;
   AWS_ACCESS_KEY: string;
   AWS_SECRET_KEY: string;
-  AWS_EVENT_BUS_NAME: string;
   AWS_LAMBDA_ARN: string;
+  AWS_SCHEDULER_ROLE_ARN: string;
 }
 
 class EventBridge {
@@ -15,26 +15,26 @@ class EventBridge {
     AWS_REGION: "",
     AWS_ACCESS_KEY: "",
     AWS_SECRET_KEY: "",
-    AWS_EVENT_BUS_NAME: "",
     AWS_LAMBDA_ARN: "",
+    AWS_SCHEDULER_ROLE_ARN: "",
   };
   private static initialized = false;
-  private _client: bridge.EventBridgeClient | null = null;
+  private _client: scheduler.SchedulerClient | null = null;
 
   public static initApp(app: Express): void {
     const {
       AWS_REGION,
       AWS_ACCESS_KEY,
       AWS_SECRET_KEY,
-      AWS_EVENT_BUS_NAME,
       AWS_LAMBDA_ARN,
+      AWS_SCHEDULER_ROLE_ARN,
     } = app.get("config");
 
     EventBridge.config.AWS_REGION = AWS_REGION;
     EventBridge.config.AWS_ACCESS_KEY = AWS_ACCESS_KEY;
     EventBridge.config.AWS_SECRET_KEY = AWS_SECRET_KEY;
-    EventBridge.config.AWS_EVENT_BUS_NAME = AWS_EVENT_BUS_NAME;
     EventBridge.config.AWS_LAMBDA_ARN = AWS_LAMBDA_ARN;
+    EventBridge.config.AWS_SCHEDULER_ROLE_ARN = AWS_SCHEDULER_ROLE_ARN;
 
     EventBridge.initialized = true;
   }
@@ -55,7 +55,7 @@ class EventBridge {
 
   private constructor() {}
 
-  private get client(): bridge.EventBridgeClient {
+  private get scheduler(): scheduler.SchedulerClient {
     if (!EventBridge.initialized) {
       throw new Error(
         "EventBridge not initialized. Call EventBridge.initApp() first"
@@ -63,7 +63,7 @@ class EventBridge {
     }
 
     if (!this._client) {
-      this._client = new bridge.EventBridgeClient({
+      this._client = new scheduler.SchedulerClient({
         region: EventBridge.config.AWS_REGION,
         credentials: {
           accessKeyId: EventBridge.config.AWS_ACCESS_KEY,
@@ -75,104 +75,94 @@ class EventBridge {
     return this._client;
   }
 
-  public async putRule(
+  public async createSchedule(
     name: string,
-    cron: string | null,
-    state: bridge.RuleState,
+    scheduleExpression: string,
     payload: object,
-    eventPattern: object | null = null
+    flexibleTimeWindow: scheduler.FlexibleTimeWindow = { Mode: "OFF" },
+    startDate?: Date,
+    endDate?: Date
   ): Promise<void> {
-    const existingRule = await this.client.send(
-      new bridge.ListRulesCommand({
-        EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
-      })
-    );
-
-    const ruleExists = existingRule.Rules?.some((rule) => rule.Name === name);
-    if (ruleExists) {
-      console.log(`Rule ${name} already exists. Skipping creation.`);
-      return;
-    }
-
-    const ruleParams: bridge.PutRuleCommandInput = {
+    const scheduleParams: scheduler.CreateScheduleCommandInput = {
       Name: name,
-      State: state,
-      EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
+      ScheduleExpression: scheduleExpression,
+      FlexibleTimeWindow: flexibleTimeWindow,
+      Target: {
+        Arn: EventBridge.config.AWS_LAMBDA_ARN,
+        RoleArn: EventBridge.config.AWS_SCHEDULER_ROLE_ARN,
+        Input: JSON.stringify(payload),
+      },
+      State: "ENABLED",
     };
 
-    if (cron) {
-      ruleParams.ScheduleExpression = cron;
-    } else if (eventPattern) {
-      ruleParams.EventPattern = JSON.stringify(eventPattern);
-    } else {
-      throw new Error(
-        "Either cron expression or event pattern must be provided."
-      );
+    if (startDate) {
+      scheduleParams.StartDate = startDate;
     }
 
-    await this.client.send(new bridge.PutRuleCommand(ruleParams));
+    if (endDate) {
+      scheduleParams.EndDate = endDate;
+    }
 
-    const targetId = `target-${name}`;
-
-    await this.client.send(
-      new bridge.PutTargetsCommand({
-        Rule: name,
-        EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
-        Targets: [
-          {
-            Id: targetId,
-            Arn: EventBridge.config.AWS_LAMBDA_ARN,
-            Input: JSON.stringify(payload),
-          },
-        ],
-      })
-    );
+    await this.scheduler.send(new scheduler.CreateScheduleCommand(scheduleParams));
   }
 
-  public async deleteRule(name: string): Promise<void> {
-    const listTargetsParams: bridge.ListTargetsByRuleCommandInput = {
-      Rule: name,
-      EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
+  public async updateSchedule(
+    name: string,
+    scheduleExpression: string,
+    payload: object,
+    flexibleTimeWindow: scheduler.FlexibleTimeWindow = { Mode: "OFF" },
+    startDate?: Date,
+    endDate?: Date
+  ): Promise<void> {
+    const scheduleParams: scheduler.UpdateScheduleCommandInput = {
+      Name: name,
+      ScheduleExpression: scheduleExpression,
+      FlexibleTimeWindow: flexibleTimeWindow,
+      Target: {
+        Arn: EventBridge.config.AWS_LAMBDA_ARN,
+        RoleArn: EventBridge.config.AWS_SCHEDULER_ROLE_ARN,
+        Input: JSON.stringify(payload),
+      },
+      State: "ENABLED",
     };
 
-    const targetData: bridge.ListTargetsByRuleCommandOutput =
-      await this.client.send(
-        new bridge.ListTargetsByRuleCommand(listTargetsParams)
-      );
-
-    const targetIds = targetData.Targets?.map((target) => target.Id) || [];
-
-    if (targetIds.length > 0) {
-      const removeParams: bridge.RemoveTargetsCommandInput = {
-        Rule: name,
-        EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
-        Ids: targetIds as string[],
-      };
-
-      await this.client.send(new bridge.RemoveTargetsCommand(removeParams));
+    if (startDate) {
+      scheduleParams.StartDate = startDate;
     }
 
-    const params: bridge.DeleteRuleCommandInput = {
-      Name: name,
-      EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
-    };
+    if (endDate) {
+      scheduleParams.EndDate = endDate;
+    }
 
-    await this.client.send(new bridge.DeleteRuleCommand(params));
+    await this.scheduler.send(new scheduler.UpdateScheduleCommand(scheduleParams));
   }
 
-  public async sendEvent(detailType: string, detail: object): Promise<void> {
-    const params: bridge.PutEventsCommandInput = {
-      Entries: [
-        {
-          EventBusName: EventBridge.config.AWS_EVENT_BUS_NAME,
-          Source: "custom.express",
-          DetailType: detailType,
-          Detail: JSON.stringify(detail),
-        },
-      ],
+  public async deleteSchedule(name: string): Promise<void> {
+    const params: scheduler.DeleteScheduleCommandInput = {
+      Name: name,
     };
 
-    await this.client.send(new bridge.PutEventsCommand(params));
+    await this.scheduler.send(new scheduler.DeleteScheduleCommand(params));
+  }
+
+  public async getSchedule(name: string): Promise<scheduler.GetScheduleCommandOutput> {
+    const params: scheduler.GetScheduleCommandInput = {
+      Name: name,
+    };
+
+    return await this.scheduler.send(new scheduler.GetScheduleCommand(params));
+  }
+
+  public async listSchedules(
+    groupName?: string,
+    namePrefix?: string
+  ): Promise<scheduler.ListSchedulesCommandOutput> {
+    const params: scheduler.ListSchedulesCommandInput = {
+      GroupName: groupName,
+      NamePrefix: namePrefix,
+    };
+
+    return await this.scheduler.send(new scheduler.ListSchedulesCommand(params));
   }
 }
 
