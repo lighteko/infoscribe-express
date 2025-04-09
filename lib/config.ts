@@ -13,6 +13,7 @@ export class BaseConfig {
   static AWS_EVENT_BUS_NAME = process.env.AWS_EVENT_BUS_NAME || "";
   static AWS_LAMBDA_ARN = process.env.AWS_LAMBDA_ARN || "";
   static SES_FROM_ADDRESS = process.env.SES_FROM_ADDRESS || "";
+  static AWS_SCHEDULER_ROLE_ARN = process.env.AWS_SCHEDULER_ROLE_ARN || "";
 
   static MYSQL_HOST = process.env.MYSQL_HOST || "db host";
   static MYSQL_USER = process.env.MYSQL_USER || "db user";
@@ -46,6 +47,7 @@ export class BaseConfig {
       AWS_BUCKET_NAME: this.AWS_BUCKET_NAME,
       AWS_EVENT_BUS_NAME: this.AWS_EVENT_BUS_NAME,
       AWS_LAMBDA_ARN: this.AWS_LAMBDA_ARN,
+      AWS_SCHEDULER_ROLE_ARN: this.AWS_SCHEDULER_ROLE_ARN,
       SES_FROM_ADDRESS: this.SES_FROM_ADDRESS,
       JWT_ACCESS_SECRET: this.JWT_ACCESS_SECRET,
       JWT_REFRESH_SECRET: this.JWT_REFRESH_SECRET,

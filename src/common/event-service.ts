@@ -80,8 +80,10 @@ export class EventService {
     });
 
     const baseDay = dayOfWeeks[0];
-    const intervals = [0, 2, 4].map((offset) => (baseDay + offset) % 7);
-    const newDayOfWeek = intervals.join(",");
+    const intervals = [2, 4, 6].map((offset) => (baseDay + offset) % 7);
+    intervals.sort((a, b) => a - b);
+    const weekdays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+    const newDayOfWeek = intervals.map((i) => weekdays[i]).join(",");
 
     const newCron = `cron(${minute} ${hour} ? ${month} ${newDayOfWeek} *)`;
     return newCron;
