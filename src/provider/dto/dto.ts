@@ -35,3 +35,13 @@ export class ProviderRoutineDTO {
   tags!: string[];
   subscribers!: number;
 }
+
+@DataClass()
+export class UpdateProviderDTO {
+  providerId!: string;
+  userId!: string;
+  title!: string;
+  summary!: string;
+  schedule!: string;
+  locale!: string;
+}

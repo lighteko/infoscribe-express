@@ -6,6 +6,7 @@ import {
   CreateProviderDTO,
   GetAllProvidersResponseDTO,
   GetProviderResponseDTO,
+  UpdateProviderDTO,
 } from "@provider/dto/dto";
 
 export class ProviderController {
@@ -38,6 +39,20 @@ export class ProviderController {
       });
       await this.service.createProvider(serialized);
       send(res, 201, { message: "Provider created successfully" });
+    } catch (e: any) {
+      abort(res, 500, String(e));
+    }
+  };
+
+  put = async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+      const serialized = await serialize(UpdateProviderDTO, {
+        ...req.body,
+        userId: user.userId,
+      });
+      await this.service.updateProvider(serialized);
+      send(res, 200, { message: "Provider updated successfully" });
     } catch (e: any) {
       abort(res, 500, String(e));
     }
