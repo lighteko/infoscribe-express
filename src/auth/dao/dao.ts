@@ -36,7 +36,7 @@ export class AuthDAO {
       UPDATE INSC_USER_L
       SET USERNAME = ${inputData.username},
           FIRST_NM = ${inputData.firstName},
-          LAST_NM = ${inputData.lastName},
+          LAST_NM = ${inputData.lastName}
       WHERE USER_ID = ${inputData.userId}
     `;
 
