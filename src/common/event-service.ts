@@ -57,20 +57,14 @@ export class EventService {
     const [minute, hour, , , dayOfWeekStr] = cronBody.trim().split(/\s+/);
 
     const now = new Date();
-    const currentDay = now.getDay();
+    const currentUTCDay = now.getUTCDay();
     const targetDay = parseInt(dayOfWeekStr);
 
-    let daysUntilTarget = (targetDay - currentDay + 7) % 7;
-    if (daysUntilTarget === 0) {
-      daysUntilTarget = 7;
-    }
+    const daysUntilTarget = (targetDay - currentUTCDay + 6) % 7;
 
-    const nextDate = new Date(now);
-    nextDate.setDate(now.getDate() + daysUntilTarget);
-    nextDate.setHours(parseInt(hour), parseInt(minute), 0, 0);
-
-    const startDate = new Date(nextDate);
-    startDate.setDate(nextDate.getDate() + 7);
+    const startDate = new Date(now);
+    startDate.setUTCDate(now.getUTCDate() + daysUntilTarget + 7);
+    startDate.setUTCHours(parseInt(hour), parseInt(minute), 0, 0);
 
     return startDate;
   }
@@ -79,16 +73,13 @@ export class EventService {
     const cronBody = schedule.replace(/^cron\(|\)$/g, "");
     const [minute, hour, , month, dayOfWeekStr] = cronBody.trim().split(/\s+/);
 
-    const dayOfWeeks = dayOfWeekStr.split(",").map((d) => {
-      const n = parseInt(d, 10);
-      return n === 7 ? 0 : n;
-    });
+    const baseDay = parseInt(dayOfWeekStr);
 
-    const baseDay = dayOfWeeks[0];
-    const intervals = [2, 4, 6].map((offset) => (baseDay + offset) % 7);
-    intervals.sort((a, b) => a - b);
-    const weekdays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-    const newDayOfWeek = intervals.map((i) => weekdays[i]).join(",");
+    const indexes = [2, 4, 6].map((offset) =>
+      (baseDay + offset) % 7 == 0 ? 7 : (baseDay + offset) % 7
+    );
+    const weekdays = ["", "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+    const newDayOfWeek = indexes.map((i) => weekdays[i]).join(",");
 
     const newCron = `cron(${minute} ${hour} ? ${month} ${newDayOfWeek} *)`;
     return newCron;
