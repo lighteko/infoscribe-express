@@ -44,6 +44,17 @@ export class AuthDAO {
     await cursor.execute(query);
   }
 
+  async updateUserPassword(userId: string, password: string) {
+    const query = SQL`
+      UPDATE INSC_USER_L
+      SET PASSWRD = ${password}
+      WHERE USER_ID = ${userId}
+    `;
+
+    const cursor = this.db.cursor();
+    await cursor.execute(query);
+  }
+
   async deleteUser(userId: string) {
     const emailQuery = SQL`
       DELETE FROM INSC_PENDING_EMAIL_L

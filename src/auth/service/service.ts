@@ -174,10 +174,8 @@ export class AuthService {
     const packet = await this.dao.getUserByEmailToken(inputData.token);
     const user = await serialize(UserPayloadDTO, packet!);
     const hashedPassword = await bcrypt.hash(inputData.newPassword, 10);
-    user.pwd = hashedPassword;
 
-    const serialized = await serialize(UpdateUserRequestDTO, user);
-    await this.dao.updateUser(serialized);
+    await this.dao.updateUserPassword(user.userId, hashedPassword);
     await this.dao.disableToken(inputData.token);
   }
 
