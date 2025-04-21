@@ -10,7 +10,7 @@ export class BaseConfig {
   static AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY || "";
   static AWS_SECRET_KEY = process.env.AWS_SECRET_KEY || "";
   static AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME || "";
-  static AWS_EVENT_BUS_NAME = process.env.AWS_EVENT_BUS_NAME || "";
+  static AWS_EVENT_BUS_ARN = process.env.AWS_EVENT_BUS_ARN || "";
   static AWS_SQS_ARN = process.env.AWS_SQS_ARN || "";
   static SES_FROM_ADDRESS = process.env.SES_FROM_ADDRESS || "";
   static AWS_SCHEDULER_ROLE_ARN = process.env.AWS_SCHEDULER_ROLE_ARN || "";
@@ -46,7 +46,7 @@ export class BaseConfig {
       AWS_ACCESS_KEY: this.AWS_ACCESS_KEY,
       AWS_SECRET_KEY: this.AWS_SECRET_KEY,
       AWS_BUCKET_NAME: this.AWS_BUCKET_NAME,
-      AWS_EVENT_BUS_NAME: this.AWS_EVENT_BUS_NAME,
+      AWS_EVENT_BUS_ARN: this.AWS_EVENT_BUS_ARN,
       AWS_SQS_ARN: this.AWS_SQS_ARN,
       AWS_SCHEDULER_ROLE_ARN: this.AWS_SCHEDULER_ROLE_ARN,
       AWS_SCHEDULER_GROUP_NAME: this.AWS_SCHEDULER_GROUP_NAME,

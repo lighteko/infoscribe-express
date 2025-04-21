@@ -5,7 +5,7 @@ interface EventBridgeConfig {
   AWS_REGION: string;
   AWS_ACCESS_KEY: string;
   AWS_SECRET_KEY: string;
-  AWS_SQS_ARN: string;
+  AWS_EVENT_BUS_ARN: string;
   AWS_SCHEDULER_ROLE_ARN: string;
   AWS_SCHEDULER_GROUP_NAME: string;
 }
@@ -16,7 +16,7 @@ class EventBridge {
     AWS_REGION: "",
     AWS_ACCESS_KEY: "",
     AWS_SECRET_KEY: "",
-    AWS_SQS_ARN: "",
+    AWS_EVENT_BUS_ARN: "",
     AWS_SCHEDULER_ROLE_ARN: "",
     AWS_SCHEDULER_GROUP_NAME: "",
   };
@@ -28,7 +28,7 @@ class EventBridge {
       AWS_REGION,
       AWS_ACCESS_KEY,
       AWS_SECRET_KEY,
-      AWS_SQS_ARN,
+      AWS_EVENT_BUS_ARN,
       AWS_SCHEDULER_ROLE_ARN,
       AWS_SCHEDULER_GROUP_NAME,
     } = app.get("config");
@@ -36,7 +36,7 @@ class EventBridge {
     EventBridge.config.AWS_REGION = AWS_REGION;
     EventBridge.config.AWS_ACCESS_KEY = AWS_ACCESS_KEY;
     EventBridge.config.AWS_SECRET_KEY = AWS_SECRET_KEY;
-    EventBridge.config.AWS_SQS_ARN = AWS_SQS_ARN;
+    EventBridge.config.AWS_EVENT_BUS_ARN = AWS_EVENT_BUS_ARN;
     EventBridge.config.AWS_SCHEDULER_ROLE_ARN = AWS_SCHEDULER_ROLE_ARN;
     EventBridge.config.AWS_SCHEDULER_GROUP_NAME = AWS_SCHEDULER_GROUP_NAME;
 
@@ -93,12 +93,13 @@ class EventBridge {
       ScheduleExpression: scheduleExpression,
       FlexibleTimeWindow: flexibleTimeWindow,
       Target: {
-        Arn: EventBridge.config.AWS_SQS_ARN,
+        Arn: EventBridge.config.AWS_EVENT_BUS_ARN,
         RoleArn: EventBridge.config.AWS_SCHEDULER_ROLE_ARN,
         Input: JSON.stringify(payload),
-        SqsParameters: {
-          MessageGroupId: name,
-        }
+        EventBridgeParameters: {
+          DetailType: name.split("-")[1],
+          Source: "events",
+        },
       },
       State: "ENABLED",
     };
@@ -130,9 +131,13 @@ class EventBridge {
       ScheduleExpression: scheduleExpression,
       FlexibleTimeWindow: flexibleTimeWindow,
       Target: {
-        Arn: EventBridge.config.AWS_SQS_ARN,
+        Arn: EventBridge.config.AWS_EVENT_BUS_ARN,
         RoleArn: EventBridge.config.AWS_SCHEDULER_ROLE_ARN,
         Input: JSON.stringify(payload),
+        EventBridgeParameters: {
+          DetailType: name.split("-")[1],
+          Source: "events",
+        },
       },
       State: "ENABLED",
     };
@@ -155,7 +160,9 @@ class EventBridge {
       Name: name,
     };
 
-    await this.scheduler.send(new clientScheduler.DeleteScheduleCommand(params));
+    await this.scheduler.send(
+      new clientScheduler.DeleteScheduleCommand(params)
+    );
   }
 
   public async getSchedule(
@@ -166,7 +173,9 @@ class EventBridge {
       Name: name,
     };
 
-    return await this.scheduler.send(new clientScheduler.GetScheduleCommand(params));
+    return await this.scheduler.send(
+      new clientScheduler.GetScheduleCommand(params)
+    );
   }
 
   public async listSchedules(
