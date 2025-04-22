@@ -175,9 +175,7 @@ export class ProviderDAO {
     const query = SQL`
       UPDATE INSC_PROVIDER_L
       SET TITLE = ${inputData.title},
-          SUMMARY = ${inputData.summary},
-          SCHEDULE = ${inputData.schedule},
-          LOCALE = ${inputData.locale}
+          SUMMARY = ${inputData.summary}
       WHERE PROVIDER_ID = ${inputData.providerId} 
         AND USER_ID = ${inputData.userId}
     `;

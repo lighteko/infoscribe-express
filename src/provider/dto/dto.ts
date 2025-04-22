@@ -42,6 +42,4 @@ export class UpdateProviderDTO {
   userId!: string;
   title!: string;
   summary!: string;
-  schedule!: string;
-  locale!: string;
 }

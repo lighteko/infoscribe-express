@@ -42,11 +42,6 @@ export class EventService {
     );
   }
 
-  async updateProviderRoutine(inputData: ProviderRoutineDTO) {
-    await this.killProviderRoutine(inputData.providerId);
-    await this.publishProviderRoutine(inputData);
-  }
-
   async killProviderRoutine(providerId: string) {
     await this.bridge.deleteSchedule(`${providerId}-collect`);
     await this.bridge.deleteSchedule(`${providerId}-build`);

@@ -37,9 +37,6 @@ export class ProviderService {
 
   async updateProvider(inputData: UpdateProviderDTO) {
     await this.dao.updateProvider(inputData);
-    const provider = await this.dao.getProvider(inputData.providerId);
-    const routineData = await serialize(ProviderRoutineDTO, provider!);
-    await this.event.updateProviderRoutine(routineData);
   }
 
   async deleteProvider(userId: string, providerId: string) {
